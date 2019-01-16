@@ -48,3 +48,10 @@ user-installed packages (in `~/.docker-devel-packages` and
 `bioconductor` script, so you should automatically get the most
 up-to-date Bioconductor release or devel versions, and will only have
 to run `BiocManager::install()` to update user-installed packages.
+
+# TODO
+
+The `bioconductor` script is rudimentary and should use docopt,
+provide start & stop, and have an option for opening a bash shell or R
+console. It at least does error at the `docker pull` stage if you
+enter anything other than "release" or "devel" as the argument.
