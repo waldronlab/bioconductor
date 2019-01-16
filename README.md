@@ -53,5 +53,7 @@ to run `BiocManager::install()` to update user-installed packages.
 
 The `bioconductor` script is rudimentary and should use docopt,
 provide start & stop, and have an option for opening a bash shell or R
-console. It at least does error at the `docker pull` stage if you
-enter anything other than "release" or "devel" as the argument.
+console. It could also provide arguments for the volume location etc. 
+
+ It at least does error at the `docker pull` stage if you enter
+anything other than "release" or "devel" as the argument.
