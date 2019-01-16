@@ -1,3 +1,5 @@
+![Build Status][https://img.shields.io/docker/build/waldronlab/bioconductor_devel.svg](https://hub.docker.com/r/waldronlab/bioconductor_devel)
+
 # About waldronlab/bioconductor_devel
 
 The `bioconductor_devel` Docker container makes some minor
