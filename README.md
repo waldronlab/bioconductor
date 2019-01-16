@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/docker/build/waldronlab/wallabe-devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel)
+[![Build Status](https://img.shields.io/docker/build/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel)
 
 
 # bioconductor_devel
