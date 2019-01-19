@@ -7,12 +7,17 @@ docker pull waldronlab/bioconductor_"$version"
 mkdir -p "~/.docker-$version-packages"
 mkdir -p ~/dockerhome
 
+if [ ! -f ~/dockerhome/.Renviron ]; then 
+    echo "R_LIBS=/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library" > ~/dockerhome/.Renviron
+fi
+
 echo Installed packages will go in host directory "~/.docker-$version-packages"
-echo rstudio home directory will be mounted on host directory ~/dockerhome
+echo rstudio home directory will be mounted on host directory "~/dockerhome"
 
 docker run -e PASSWORD=rstudiopassword \
-      -v ~/dockerhome:/home/rstudio/  \
+      -v ~/dockerhome:/home/rstudio  \
       -v ~/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
       -p 8787:8787 \
-      waldronlab/bioconductor_"$version"
+      bioconductor/"$version"_core2
+
 
