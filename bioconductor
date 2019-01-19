@@ -18,6 +18,7 @@ docker run -e PASSWORD=rstudiopassword \
       -v ~/dockerhome:/home/rstudio  \
       -v ~/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
       -p 8787:8787 \
-      bioconductor/"$version"_core2
+      waldronlab/bioconductor_"$version"
+#      bioconductor/"$version"_core2
 
 
