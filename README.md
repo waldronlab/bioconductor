@@ -1,15 +1,8 @@
-[![Build Status](https://img.shields.io/docker/build/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel)
+# About this "bioconductor" script
 
-# About waldronlab/bioconductor_devel
+This script makes it more convenient to run the Bioconductor docker images locally for routine daily usage:
 
-The `bioconductor_devel` Docker container makes some minor
-modifications to Bioconductor's `bioconductor/devel_core2` container
-for convenient desktop/laptop usage:
-
-1. It creates a user packages library in the host directory
-`~/.docker-devel-packages`. Any new packages you install will go here,
-and will remain after restarting your container.
-2. It creates a host directory `~/dockerhome` where the home directory
+1. It creates a host directory `~/dockerhome` where the home directory
 of the Docker user will be mounted. Files can be shared between the
 Docker container and host filesystem here.
 3. It installs dependencies needed for some Bioconductor packages
@@ -33,8 +26,6 @@ the script is executable (e.g. `chmod a+x bioconductor`).
 release`. Later you can use Ctrl-C or Command-C(mac) to stop the
 container. There are additional usage tips at
 https://github.com/Bioconductor/bioc_docker, including how to access the image from a command-line. 
-These images are called
-"waldronlab/bioconductor_devel" and "waldronlab/bioconductor_release".
 5. In a browser, open http://localhost:8787. Login with username is
 "rstudio" and password "rstudiopassword" unless you change the
 password in the "bioconductor" script of step 3.
