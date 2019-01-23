@@ -48,3 +48,5 @@ console. It could also provide arguments for the volume location etc.
 
  It at least does error at the `docker pull` stage if you enter
 anything other than "release" or "devel" as the argument.
+
+I am using this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6) to test package installability.
