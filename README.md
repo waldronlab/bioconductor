@@ -17,7 +17,7 @@ Preferences -> File Sharing). Last I checked, this was already the
 case by default. You can also change the allotted system resources if
 you want.
 3. Copy the
-[bioconductor](https://github.com/waldronlab/bioconductor_devel/blob/master/Dockerfile)
+[bioconductor](https://github.com/waldronlab/bioconductor_devel/blob/master/bioconductor)
 script from this repo to somewhere in your $PATH. Modify as you see
 fit, e.g. if you want to mount different directories or in a different
 place than `~/dockerhome`, or change the rstudio password.  Make sure
