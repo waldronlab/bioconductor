@@ -22,6 +22,7 @@ apt-get install -y libprotoc-dev  librdf0-dev libmagick++-dev libsasl2-dev
 apt-get install -y libpoppler-cpp-dev jags libpq-dev tk-dev libsbml5
 
 pip install sklearn
+pip install pandas
 
 ## Likely unneeded bloat?
 apt-get install -y apache2  
