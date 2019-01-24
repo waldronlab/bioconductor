@@ -19,7 +19,7 @@ apt-get install -y libxml-simple-perl libmpfr-dev
 apt-get install -y libudunits2-dev tree python-yaml libmodule-build-perl biber  
 apt-get install -y libprotobuf-dev protobuf-compiler libapparmor-dev libgeos-dev  
 apt-get install -y libprotoc-dev  librdf0-dev libmagick++-dev libsasl2-dev
-apt-get install -y libpoppler-cpp-dev
+apt-get install -y libpoppler-cpp-dev jags
 
 #    texlive-fonts-recommended texlive-science texlive-bibtex-extra texlive-fonts-extra \
 #    texlive-lang-european texinfo texlive-latex-extra \
