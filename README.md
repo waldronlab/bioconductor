@@ -1,3 +1,5 @@
+[![](https://images.microbadger.com/badges/image/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel "page on dockerhub")
+
 # About this "bioconductor" script
 
 This script makes it more convenient to run the Bioconductor docker images locally for routine daily usage:
