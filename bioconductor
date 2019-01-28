@@ -4,21 +4,19 @@ version=$1
 
 docker pull waldronlab/bioconductor_"$version"
 
-mkdir -p "~/.docker-$version-packages"
-mkdir -p ~/dockerhome
+mkdir -p "$HOME/.docker-$version-packages"
+mkdir -p "$HOME/dockerhome"
 
-if [ ! -f ~/dockerhome/.Renviron ]; then 
-    echo "R_LIBS=/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library" > ~/dockerhome/.Renviron
+if [ ! -f "$HOME"/dockerhome/.Renviron ]; then 
+    echo "R_LIBS=/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library" > "$HOME"/dockerhome/.Renviron
 fi
 
-echo Installed packages will go in host directory "~/.docker-$version-packages"
-echo rstudio home directory will be mounted on host directory "~/dockerhome"
+echo Installed packages will go in host directory "$HOME/.docker-$version-packages"
+echo rstudio home directory will be mounted on host directory "$HOME/dockerhome"
 
 docker run -e PASSWORD=rstudiopassword \
-      -v ~/dockerhome:/home/rstudio  \
-      -v ~/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
+      -v $HOME/dockerhome:/home/rstudio  \
+      -v $HOME/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
       -p 8787:8787 \
       waldronlab/bioconductor_"$version"
 #      bioconductor/"$version"_core2
-
-
