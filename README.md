@@ -1,4 +1,9 @@
-[![](https://images.microbadger.com/badges/image/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel "page on dockerhub")
+| Hub |    Status     |
+| --- | --------------- |
+| Docker | [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel "page on dockerhub") |
+| Singularity | [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/2232) |
+
+*Note about Docker and Singularity*: These instructions and the script should be updated to reflect support also for [Singularity](https://www.sylabs.io/singularity/). To make a generalization, Docker is more supported by commercial Cloud providers, whereas Singularity is more supported by university high-performance computing facilities.
 
 # About this "bioconductor" script
 
