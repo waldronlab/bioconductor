@@ -12,8 +12,8 @@ This script makes it more convenient to run the Bioconductor docker images local
 1. It creates a host directory `~/dockerhome` where the home directory
 of the Docker user will be mounted. Files can be shared between the
 Docker container and host filesystem here.
-2. It results in user-installed packages being added to the host directory `~/.docker-devel-packages` or `~/.docker-devel-packages`. 
-3. It ships with Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_devel), which install additional system dependencies on top of bioconductor/release_base2 and bioconductor/devel_base2 that are needed to install some Bioconductor packages. The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
+2. It results in user-installed packages being added to the host directory `~/.docker-devel-packages` or `~/.docker-release-packages`. 
+3. It ships with Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_release), which install additional system dependencies on top of bioconductor/release_base2 and bioconductor/devel_base2 that are needed to install some Bioconductor packages. The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
 
 # Usage
 
