@@ -5,7 +5,7 @@
 
 *Note about Docker and Singularity*: These instructions and the script should be updated to reflect support also for [Singularity](https://www.sylabs.io/singularity/). To make a generalization, Docker is more supported by commercial Cloud providers, whereas Singularity is more supported by university high-performance computing facilities.
 
-# About this "bioconductor" script
+# About the "bioconductor" script
 
 This script makes it more convenient to run the Bioconductor docker images locally for routine daily usage:
 
@@ -14,6 +14,21 @@ of the Docker user will be mounted. Files can be shared between the
 Docker container and host filesystem here.
 2. It results in user-installed packages being added to the host directory `~/.docker-devel-packages` or `~/.docker-release-packages`. 
 3. It ships with Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_release), which install additional system dependencies on top of bioconductor/release_base2 and bioconductor/devel_base2 that are needed to install some Bioconductor packages. The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
+
+# Other helpful shortcuts
+
+The following aliases may also be useful in your `~/.bash_profile` for command-line R and bash usage with the same containers, package directories, home directory, and rstudio user:
+
+```bash
+alias releaseshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/b\
+ioconductor_release bash"
+alias develshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-devel-packages:/usr/local/lib/R/host-site-library waldronlab/bioco\
+nductor_devel bash"
+alias Rrelease="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_release R"
+alias Rdevel="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-devel-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_devel R"
+#default:                                               
+alias R=Rdevel
+```
 
 # Usage
 
