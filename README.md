@@ -30,6 +30,11 @@ alias Rdevel="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-
 alias R=Rdevel
 ```
 
+# About the waldronlab bioconductor docker images
+
+The `waldronlab/bioconductor_devel` and `waldronlab/bioconductor_release` containers are built on top of the `bioconductor/devel_base2` and `bioconductor/release_base2` images, respectively. They add many system dependencies so that almost every Bioconductor package can be installed using `BiocManager::install()` with no further troubles. As of the last testing, the release image successfully installed all but 10 of over 1,600 packages (testing done with this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For almost everyone, this means no more errors when trying to install a package.
+
+
 # Usage
 
 1. Install a [docker client](https://www.docker.com/get-started) for
@@ -70,5 +75,3 @@ console. It could also provide arguments for the volume location etc.
 
  It at least does error at the `docker pull` stage if you enter
 anything other than "release" or "devel" as the argument.
-
-I am using this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6) to test package installability.
