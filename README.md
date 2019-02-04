@@ -3,8 +3,6 @@
 | Docker | [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel "page on dockerhub") |
 | Singularity | [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/2232) |
 
-*Note about Docker and Singularity*: These instructions and the script should be updated to reflect support also for [Singularity](https://www.sylabs.io/singularity/). To make a generalization, Docker is more supported by commercial Cloud providers, whereas Singularity is more supported by university high-performance computing facilities.
-
 # About the "bioconductor" script
 
 This script makes it more convenient to run the Bioconductor docker images locally for routine daily usage:
@@ -13,7 +11,30 @@ This script makes it more convenient to run the Bioconductor docker images local
 of the Docker user will be mounted. Files can be shared between the
 Docker container and host filesystem here.
 2. It results in user-installed packages being added to the host directory `~/.docker-devel-packages` or `~/.docker-release-packages`. 
-3. It ships with Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_release), which install additional system dependencies on top of bioconductor/release_base2 and bioconductor/devel_base2 that are needed to install some Bioconductor packages. The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
+3. It runs the Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_release). The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
+
+# About the waldronlab docker images
+
+The `waldronlab/bioconductor_devel` and `waldronlab/bioconductor_release` images are built on top of the `bioconductor/devel_base2` and `bioconductor/release_base2` images, respectively. They add many system dependencies so that almost every Bioconductor package can be installed using `BiocManager::install()` with no further troubles. As of the last testing, the release image successfully installed all but 10 of over 1,600 packages (testing done with this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For almost everyone, this means no more errors when trying to install a package.
+
+# For singularity users
+
+To make a generalization, Docker is more supported by commercial Cloud providers, whereas [Singularity](https://www.sylabs.io/singularity/) is (far) more likely to be supported by university high-performance computing facilities.
+
+If you have singularity installed, pull the singularity images as follows:
+```
+singularity pull shub://waldronlab/bioconductor_devel
+singularity pull shub://waldronlab/bioconductor_release
+```
+
+So far I have only used singularity for bash and R, with aliases like these (assuming you did the above pull commands from your home directory):
+```
+alias singulaR="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg R"
+alias singularbash="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg bash"
+```
+
+Note that default behavior in singularity is to mount your home (and several other) directories as the home directory within the container, while maintaining your user permissions. This makes all the docker efforts to mount volumes for your container package and home directories unnecessary. I haven't yet tried running rstudio via singularity, but it shouldn't be too hard?
+
 
 # Other helpful shortcuts
 
@@ -30,12 +51,7 @@ alias Rdevel="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-
 alias R=Rdevel
 ```
 
-# About the waldronlab bioconductor docker images
-
-The `waldronlab/bioconductor_devel` and `waldronlab/bioconductor_release` containers are built on top of the `bioconductor/devel_base2` and `bioconductor/release_base2` images, respectively. They add many system dependencies so that almost every Bioconductor package can be installed using `BiocManager::install()` with no further troubles. As of the last testing, the release image successfully installed all but 10 of over 1,600 packages (testing done with this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For almost everyone, this means no more errors when trying to install a package.
-
-
-# Usage
+# Using the `bioconductor` script and docker container
 
 1. Install a [docker client](https://www.docker.com/get-started) for
 your operating system. 
@@ -73,5 +89,5 @@ The `bioconductor` script is rudimentary and should use docopt,
 provide start & stop, and have an option for opening a bash shell or R
 console. It could also provide arguments for the volume location etc. 
 
- It at least does error at the `docker pull` stage if you enter
+It at least does error at the `docker pull` stage if you enter
 anything other than "release" or "devel" as the argument.
