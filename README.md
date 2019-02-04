@@ -45,7 +45,7 @@ fit, e.g. if you want to mount different directories or in a different
 place than `~/dockerhome`, or change the rstudio password.  Make sure
 the script is executable (e.g. `chmod a+x bioconductor`).
 4. From the command-line, type `bioconductor devel` or `bioconductor
-release`. Later you can use Ctrl-C or Command-C(mac) to stop the
+release`. Later you can use Ctrl-C to stop the
 container. There are additional usage tips at
 https://github.com/Bioconductor/bioc_docker, including how to access the image from a command-line. 
 5. In a browser, open http://localhost:8787. Login with username is
