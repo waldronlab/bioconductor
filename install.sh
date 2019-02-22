@@ -6,6 +6,7 @@ apt-get install -y sqlite libfftw3-dev libfftw3-doc libopenbabel-dev libfftw3-3 
 apt-get install -y pkg-config xfonts-100dpi xfonts-75dpi libopenmpi-dev openmpi-bin  
 apt-get install -y python-mpi4py mpi-default-bin openmpi-common libexempi3 openmpi-doc  
 apt-get install -y libxt-dev
+apt-get install -y libgdal-dev
 apt-get install -y libjpeg62-turbo-dev libcairo2-dev  libtiff5-dev fortran77-compiler libreadline-dev  
 apt-get install -y xvfb tcl8.5-dev tk8.5-dev libgsl2 libgsl0-dev libgtk2.0-dev  
 apt-get install -y openjdk-8-jdk  
