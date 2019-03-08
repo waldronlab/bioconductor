@@ -2,7 +2,7 @@
 
 version=$1
 
-docker pull waldronlab/bioconductor_"$version"
+docker pull waldronlab/bioconductor_"$version":stable
 
 mkdir -p "$HOME/.docker-$version-packages"
 mkdir -p "$HOME/dockerhome"
@@ -18,5 +18,5 @@ docker run -e PASSWORD=rstudiopassword \
       -v $HOME/dockerhome:/home/rstudio  \
       -v $HOME/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
       -p 8787:8787 \
-      waldronlab/bioconductor_"$version"
+      waldronlab/bioconductor_"$version":stable
 #      bioconductor/"$version"_core2
