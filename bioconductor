@@ -2,21 +2,32 @@
 
 version=$1
 
-docker pull waldronlab/bioconductor_"$version":stable
-
-mkdir -p "$HOME/.docker-$version-packages"
-mkdir -p "$HOME/dockerhome"
-
-if [ ! -f "$HOME"/dockerhome/.Renviron ]; then 
-    echo "R_LIBS=/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library" > "$HOME"/dockerhome/.Renviron
+if [ -z "${version// }" ] || [ $version != "release" -a $version != "devel" ]; then
+    echo "Enter either 'devel' or 'release' version"
+    exit 1
 fi
 
-echo Installed packages will go in host directory "$HOME/.docker-$version-packages"
-echo rstudio home directory will be mounted on host directory "$HOME/dockerhome"
+docker pull waldronlab/bioconductor_"$version":stable
+
+DOCKER_RPKGS="$HOME/.docker-$version-packages"
+# DOCKER_RPKGS=$HOME/R/x86_64-pc-linux-gnu-library/bioc-$version
+DOCKER_HOME="$HOME/dockerhome"
+R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
+
+mkdir -p "$DOCKER_RPKGS"
+mkdir -p "$DOCKER_HOME"
+
+if [ ! -f "$DOCKER_HOME"/.Renviron ]; then
+    echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
+fi
+
+echo Installed packages will go in host directory: "$DOCKER_RPKGS"
+echo RStudio home directory will be mounted on host directory: "$DOCKER_HOME"
 
 docker run -e PASSWORD=rstudiopassword \
-      -v $HOME/dockerhome:/home/rstudio  \
-      -v $HOME/.docker-"$version"-packages:/usr/local/lib/R/host-site-library \
-      -p 8787:8787 \
-      waldronlab/bioconductor_"$version":stable
-#      bioconductor/"$version"_core2
+    -v $DOCKER_HOME:/home/rstudio \
+    -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+    -p 8787:8787 \
+    waldronlab/bioconductor_"$version":stable
+
+#   bioconductor/"$version"_core2
