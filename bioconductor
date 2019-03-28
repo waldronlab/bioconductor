@@ -10,7 +10,7 @@ fi
 docker pull waldronlab/bioconductor_"$version":stable
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
-# DOCKER_RPKGS=$HOME/R/x86_64-pc-linux-gnu-library/bioc-$version
+# DOCKER_RPKGS=$HOME/R/bioc-$version
 DOCKER_HOME="$HOME/dockerhome"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
 
