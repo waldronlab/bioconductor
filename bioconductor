@@ -7,7 +7,14 @@ if [ -z "${version// }" ] || [ $version != "release" -a $version != "devel" ]; t
     exit 1
 fi
 
-docker pull waldronlab/bioconductor_"$version":stable
+if [ $version == "release" ]
+    version="RELEASE_3_9"
+fi
+
+dockerIMG=bioconductor/bioconductor_full:"$version"
+# dockerIMG=waldronlab/bioconductor_"$version":stable
+
+docker pull $dockerIMG
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 # DOCKER_RPKGS=$HOME/R/bioc-$version
@@ -28,6 +35,5 @@ docker run -e PASSWORD=rstudiopassword \
     -v $DOCKER_HOME:/home/rstudio \
     -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
     -p 8787:8787 \
-    waldronlab/bioconductor_"$version":stable
+    $dockerIMG
 
-#   bioconductor/"$version"_core2
