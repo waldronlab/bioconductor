@@ -17,10 +17,12 @@ elif [ $envtype != "rstudio" ] && [ $envtype != "shell" ]; then
 fi
 
 if [ $version == "release" ]; then
-    version="RELEASE_3_9"
+    dockertag="RELEASE_3_9"
+else
+    dockertag=$version
 fi
 
-dockerIMG=bioconductor/bioconductor_full:"$version"
+dockerIMG=bioconductor/bioconductor_full:"$dockertag"
 # dockerIMG=waldronlab/bioconductor_"$version":stable
 
 docker pull $dockerIMG
