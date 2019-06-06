@@ -19,7 +19,9 @@ fi
 if [ $version == "release" ]; then
     dockertag="RELEASE_3_9"
 else
-    dockertag=$version
+    # DEVEL uses R-Devel
+    # dockertag=$version
+    dockertag="RELEASE_3_9"
 fi
 
 dockerIMG=bioconductor/bioconductor_full:"$dockertag"
@@ -49,7 +51,7 @@ if [ $envtype == "rstudio" ]; then
         -p 8787:8787 \
         $dockerIMG
 elif [ $envtype == "shell" ]; then
-    docker run -ti --user bioc \
+    docker run -ti \
         -v $DOCKER_HOME:/home/bioc \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         $dockerIMG bash
