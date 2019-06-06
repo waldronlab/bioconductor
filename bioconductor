@@ -1,13 +1,22 @@
 #!/bin/bash
 
 version=$1
+envtype=$2
 
 if [ -z "${version// }" ] || [ $version != "release" -a $version != "devel" ]; then
     echo "Enter either 'devel' or 'release' version"
     exit 1
 fi
 
-if [ $version == "release" ]
+if [ -z "${envtype// }" ]; then
+    echo "Empty 'envtype' using default: rstudio"
+    envtype="rstudio"
+elif [ $envtype != "rstudio" ] && [ $envtype != "shell" ]; then
+    echo "Enter either 'rstudio' or 'shell' environment type"
+    exit 2
+fi
+
+if [ $version == "release" ]; then
     version="RELEASE_3_9"
 fi
 
@@ -31,9 +40,17 @@ fi
 echo Installed packages will go in host directory: "$DOCKER_RPKGS"
 echo RStudio home directory will be mounted on host directory: "$DOCKER_HOME"
 
-docker run -e PASSWORD=rstudiopassword \
-    -v $DOCKER_HOME:/home/rstudio \
-    -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-    -p 8787:8787 \
-    $dockerIMG
+if [ $envtype == "rstudio" ]; then
+    docker run -e PASSWORD=rstudiopassword \
+        -v $DOCKER_HOME:/home/rstudio \
+        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        -p 8787:8787 \
+        $dockerIMG
+elif [ $envtype == "shell" ]; then
+    docker run -ti --user bioc \
+        -v $DOCKER_HOME:/home/bioc \
+        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        $dockerIMG bash
+fi
+
 
