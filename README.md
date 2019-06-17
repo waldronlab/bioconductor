@@ -5,40 +5,78 @@
 
 # About the "bioconductor" script
 
-This script makes it more convenient to run the Bioconductor docker images locally for routine daily usage:
+This script makes it more convenient to run the Bioconductor docker images
+locally for routine daily usage:
 
 1. It creates a host directory `~/dockerhome` where the home directory
 of the Docker user will be mounted. Files can be shared between the
 Docker container and host filesystem here.
-2. It results in user-installed packages being added to the host directory `~/.docker-devel-packages` or `~/.docker-release-packages`. 
-3. It runs the Docker containers [waldronlab/bioconductor_devel](https://github.com/waldronlab/bioconductor_devel) and [waldronlab/bioconductor_release](https://github.com/waldronlab/bioconductor_release). The script can, however, easily be changed to use any of the [official Bioconductor Docker containers](https://bioconductor.org/help/docker/).
+2. It results in user-installed packages being added to the host directory
+`~/.docker-devel-packages` or `~/.docker-release-packages`.
+3. It runs the Docker container
+[bioconductor/bioconductor_full](https://github.com/bioconductor/bioconductor_full)
 
-# About the waldronlab docker images
+## Inputs to the 'biconductor' script
 
-The `waldronlab/bioconductor_devel` and `waldronlab/bioconductor_release` images are built on top of the `bioconductor/devel_base2` and `bioconductor/release_base2` images, respectively. They add many system dependencies so that almost every Bioconductor package can be installed using `BiocManager::install()` with no further troubles. As of the last testing, the release image successfully installed all but 10 of over 1,600 packages (testing done with this [gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For almost everyone, this means no more errors when trying to install a package.
+The user must specify the version of Bioconductor to spin up as a Docker image.
+The available inputs for the **first** argument are:
+
+    1. release
+    2. devel
+
+The **second** argument for the 'bioconductor' script denotes the environment type
+to run when executing the script this will either put the user in one of two
+supported environements:
+
+    1. rstudio - allows the user to open up an rstudio session in the browser
+    2. shell - put the user in the command line within the container
+
+Note. The default user environment is the `rstudio` session
+
+# About the `bioconductor_full` docker image
+
+The `bioconductor/bioconductor` image is built for both release and devel
+versions of Bioconductor. It includes system dependencies so that almost every
+Bioconductor package can be installed using `BiocManager::install()` with no
+further troubles. As of the last testing, the image successfully
+installed all but 10 of over 1,600 packages (testing done with this
+[gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For
+almost everyone, this means no more errors when trying to install a package.
 
 # For singularity users
 
-To make a generalization, Docker is more supported by commercial Cloud providers, whereas [Singularity](https://www.sylabs.io/singularity/) is (far) more likely to be supported by university high-performance computing facilities.
+To make a generalization, Docker is more supported by commercial Cloud
+providers, whereas [Singularity](https://www.sylabs.io/singularity/) is (far)
+more likely to be supported by university high-performance computing
+facilities.
 
 If you have singularity installed, pull the singularity images as follows:
+
 ```
 singularity pull shub://waldronlab/bioconductor_devel
 singularity pull shub://waldronlab/bioconductor_release
 ```
 
-So far I have only used singularity for bash and R, with aliases like these (assuming you did the above pull commands from your home directory):
+So far I have only used singularity for bash and R, with aliases like these
+(assuming you did the above pull commands from your home directory):
+
 ```
 alias singulaR="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg R"
 alias singularbash="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg bash"
 ```
 
-Note that default behavior in singularity is to mount your home (and several other) directories as the home directory within the container, while maintaining your user permissions. This makes all the docker efforts to mount volumes for your container package and home directories unnecessary. I haven't yet tried running rstudio via singularity, but it shouldn't be too hard?
+Note that default behavior in singularity is to mount your home (and several
+other) directories as the home directory within the container, while
+maintaining your user permissions. This makes all the docker efforts to mount
+volumes for your container package and home directories unnecessary. I haven't
+yet tried running rstudio via singularity, but it shouldn't be too hard?
 
 
 # Other helpful shortcuts
 
-The following aliases may also be useful in your `~/.bash_profile` for command-line R and bash usage with the same containers, package directories, home directory, and rstudio user:
+The following aliases may also be useful in your `~/.bash_profile` for
+command-line R and bash usage with the same containers, package directories,
+home directory, and rstudio user:
 
 ```bash
 alias releaseshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/b\
@@ -47,14 +85,14 @@ alias develshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome
 nductor_devel bash"
 alias Rrelease="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_release R"
 alias Rdevel="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-devel-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_devel R"
-#default:                                               
+#default:
 alias R=Rdevel
 ```
 
 # Using the `bioconductor` script and docker container
 
 1. Install a [docker client](https://www.docker.com/get-started) for
-your operating system. 
+your operating system.
 2. Make sure home directories are being shared (Whale icon ->
 Preferences -> File Sharing). Last I checked, this was already the
 case by default. You can also change the allotted system resources if
@@ -68,10 +106,11 @@ the script is executable (e.g. `chmod a+x bioconductor`).
 4. From the command-line, type `bioconductor devel` or `bioconductor
 release`. Later you can use Ctrl-C to stop the
 container. There are additional usage tips at
-https://github.com/Bioconductor/bioc_docker, including how to access the image from a command-line. 
-5. In a browser, open http://localhost:8787. Login with username is
-"rstudio" and password "rstudiopassword" unless you change the
-password in the "bioconductor" script of step 3.
+https://github.com/Bioconductor/bioc_docker.
+5. If using the 'rstudio' argument (default) --- In a browser, open
+http://localhost:8787. Login with username is "rstudio" and password
+"rstudiopassword" unless you change the password within the "bioconductor"
+script in step 3.
 
 That's it! You can stop the instance you're running and switch to
 release or devel (but you can't currently run both at the same
@@ -83,11 +122,12 @@ user-installed packages (in `~/.docker-devel-packages` and
 up-to-date Bioconductor release or devel versions, and will only have
 to run `BiocManager::install()` to update user-installed packages.
 
+**Note**: Checking mechanisms have been implemented for the script to error if
+anything other than "release" or "devel" is entered in the first argument.
+
 # TODO
 
-The `bioconductor` script is rudimentary and should use docopt,
-provide start & stop, and have an option for opening a bash shell or R
-console. It could also provide arguments for the volume location etc. 
+The `bioconductor` script is rudimentary and should use docopt, and provide
+start & stop. It could also provide arguments for the volume location etc.
 
-It at least does error at the `docker pull` stage if you enter
-anything other than "release" or "devel" as the argument.
+
