@@ -71,24 +71,6 @@ maintaining your user permissions. This makes all the docker efforts to mount
 volumes for your container package and home directories unnecessary. I haven't
 yet tried running rstudio via singularity, but it shouldn't be too hard?
 
-
-# Other helpful shortcuts
-
-The following aliases may also be useful in your `~/.bash_profile` for
-command-line R and bash usage with the same containers, package directories,
-home directory, and rstudio user:
-
-```bash
-alias releaseshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/b\
-ioconductor_release bash"
-alias develshell="docker run -ti -u rstudio -w /home/rstudio -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-devel-packages:/usr/local/lib/R/host-site-library waldronlab/bioco\
-nductor_devel bash"
-alias Rrelease="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-release-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_release R"
-alias Rdevel="docker run -ti -v $HOME/dockerhome:/home/rstudio -v $HOME/.docker-devel-packages:/usr/local/lib/R/host-site-library waldronlab/bioconductor_devel R"
-#default:
-alias R=Rdevel
-```
-
 # Using the `bioconductor` script and docker container
 
 1. Install a [docker client](https://www.docker.com/get-started) for
@@ -124,6 +106,21 @@ to run `BiocManager::install()` to update user-installed packages.
 
 **Note**: Checking mechanisms have been implemented for the script to error if
 anything other than "release" or "devel" is entered in the first argument.
+
+# Example command line execution
+
+The following commands may be useful in your `~/.bash_profile` for
+command-line R and bash usage with the same containers, package directories,
+home directory, and rstudio user:
+
+```bash
+alias releaseshell="bioconductor release shell"
+alias develshell="bioconductor devel shell"
+
+# coming soon #
+alias Rrelease="bioconductor release R"
+alias Rdevel="bioconductor devel R"
+```
 
 # TODO
 
