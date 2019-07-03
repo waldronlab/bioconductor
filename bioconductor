@@ -19,15 +19,18 @@ fi
 if [ $version == "release" ]; then
     dockertag="RELEASE_3_9"
 else
-    # DEVEL uses R-Devel
-    # dockertag=$version
-    dockertag="RELEASE_3_9"
+    dockertag=$version
 fi
 
 dockerIMG=bioconductor/bioconductor_full:"$dockertag"
 # dockerIMG=waldronlab/bioconductor_"$version":stable
 
 docker pull $dockerIMG
+
+docker image build \
+    --build-arg USER_ID=$(id -u ${USER}) \
+    --build-arg GROUP_ID=$(id -g ${USER}) \
+    -t $dockerIMG .
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 # DOCKER_RPKGS=$HOME/R/bioc-$version
@@ -41,8 +44,8 @@ if [ ! -f "$DOCKER_HOME"/.Renviron ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
-echo Installed packages will go in host directory: "$DOCKER_RPKGS"
-echo RStudio home directory will be mounted on host directory: "$DOCKER_HOME"
+echo "Installed packages will go in host directory: $DOCKER_RPKGS"
+echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
 
 if [ $envtype == "rstudio" ]; then
     docker run -e PASSWORD=rstudiopassword \
@@ -51,10 +54,10 @@ if [ $envtype == "rstudio" ]; then
         -p 8787:8787 \
         $dockerIMG
 elif [ $envtype == "shell" ]; then
-    docker run -ti \
-        -v $DOCKER_HOME:/home/bioc \
+    docker run -ti --user rstudio \
+        -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        -w /home/rstudio \
         $dockerIMG bash
 fi
-
 
