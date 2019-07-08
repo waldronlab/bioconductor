@@ -32,8 +32,8 @@ docker image build \
     --build-arg GROUP_ID=$(id -g ${USER}) \
     -t $dockerIMG .
 
-DOCKER_RPKGS="$HOME/.docker-$version-packages"
-# DOCKER_RPKGS=$HOME/R/bioc-$version
+# DOCKER_RPKGS="$HOME/.docker-$version-packages"
+DOCKER_RPKGS=$HOME/R/bioc-$version
 DOCKER_HOME="$HOME/dockerhome"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
 
@@ -42,6 +42,15 @@ mkdir -p "$DOCKER_HOME"
 
 if [ ! -f "$DOCKER_HOME"/.Renviron ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
+fi
+
+TOKEN_EXP='GITHUB_[P|T].*'
+
+GPAT=`grep "$TOKEN_EXP" ~/.Renviron`
+GRENV=`grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron`
+
+if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
+    echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
