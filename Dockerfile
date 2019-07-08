@@ -1,8 +1,6 @@
 FROM bioconductor/bioconductor_full:devel
 
-# ADD ./install.sh /tmp/
-# RUN chmod 755 /tmp/install.sh
-# RUN /tmp/install.sh
+RUN apt-get install -y htop tree tmux vim
 
 ARG USER_ID
 ARG GROUP_ID
