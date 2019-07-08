@@ -1,6 +1,12 @@
 FROM bioconductor/bioconductor_full:devel
 
-RUN apt-get install -y htop tree tmux vim
+# Add extra dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    htop \
+    tree \
+    tmux \
+    vim
 
 ARG USER_ID
 ARG GROUP_ID
