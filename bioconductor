@@ -24,13 +24,16 @@ fi
 
 dockerIMG=bioconductor/bioconductor_full:"$dockertag"
 # dockerIMG=waldronlab/bioconductor_"$version":stable
+# waldronIMG=basename "$dockerIMG"
+
+waldronIMG=waldronlab/bioconductor_full:"$dockertag"
 
 docker pull $dockerIMG
 
 docker image build \
     --build-arg USER_ID=$(id -u ${USER}) \
     --build-arg GROUP_ID=$(id -g ${USER}) \
-    -t $dockerIMG .
+    -t $waldronIMG .
 
 # DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_RPKGS=$HOME/R/bioc-$version

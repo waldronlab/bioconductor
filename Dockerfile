@@ -8,6 +8,8 @@ RUN apt-get update \
     tmux \
     vim
 
+RUN R -e "BiocManager::install('stringi')"
+
 ARG USER_ID
 ARG GROUP_ID
 
