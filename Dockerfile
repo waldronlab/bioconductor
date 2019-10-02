@@ -1,4 +1,6 @@
-FROM bioconductor/bioconductor_full:devel
+ARG VERSION
+
+FROM bioconductor/bioconductor_full:${VERSION}
 
 # Add extra dependencies
 RUN apt-get update \
@@ -6,9 +8,8 @@ RUN apt-get update \
     htop \
     tree \
     tmux \
+    texlive-xetex \
     vim
-
-RUN R -e "BiocManager::install('stringi')"
 
 ARG USER_ID
 ARG GROUP_ID
