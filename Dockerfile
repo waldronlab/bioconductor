@@ -6,6 +6,7 @@ FROM bioconductor/bioconductor_full:${VERSION}
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     htop \
+    locate \
     tree \
     tmux \
     texlive-xetex \
