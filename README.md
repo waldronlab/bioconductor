@@ -35,7 +35,7 @@ Note. The default user environment is the `rstudio` session
 
 # About the `bioconductor_full` docker image
 
-The `bioconductor/bioconductor` image is built for both release and devel
+The `bioconductor/bioconductor_full` image is built for both release and devel
 versions of Bioconductor. It includes system dependencies so that almost every
 Bioconductor package can be installed using `BiocManager::install()` with no
 further troubles. As of the last testing, the image successfully
