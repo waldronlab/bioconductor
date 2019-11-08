@@ -2,6 +2,7 @@
 
 version=$1
 envtype=$2
+port=$3
 
 if [ -z "${version// }" ] || [ $version != "release" -a $version != "devel" ]; then
     echo "Enter either 'devel' or 'release' version"
@@ -16,11 +17,12 @@ elif [ $envtype != "rstudio" ] && [ $envtype != "shell" ]; then
     exit 2
 fi
 
-if [ $version == "release" ]; then
-    dockertag="RELEASE_3_9"
-else
-    dockertag=$version
+if [ -z "${port// }" ]; then
+    port=8787
 fi
+
+
+dockertag=$version
 
 dockerIMG=bioconductor/bioconductor_full:"$dockertag"
 # dockerIMG=waldronlab/bioconductor_"$version":stable
@@ -34,7 +36,7 @@ docker image build \
     --build-arg USER_ID=$(id -u ${USER}) \
     --build-arg GROUP_ID=$(id -g ${USER}) \
     --build-arg VERSION=${dockertag} \
-    -t $waldronIMG .
+    -t $dockerIMG .
 
 # DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_RPKGS=$HOME/R/bioc-$version
@@ -59,18 +61,23 @@ fi
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
 echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
+echo $envtype
+
+if [ $envtype == "rstudio" ]; then
+    echo "Open rstudio running Bioconductor version $version at http://localhost:$port"
+fi
 
 if [ $envtype == "rstudio" ]; then
     docker run -e PASSWORD=rstudiopassword \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-        -p 8787:8787 \
-        $waldronIMG
+        -p $port:8787 \
+        $dockerIMG
 elif [ $envtype == "shell" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
-        $waldronIMG bash
+        $dockerIMG bash
 fi
 
