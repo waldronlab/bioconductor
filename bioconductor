@@ -21,20 +21,9 @@ if [ -z "${port// }" ]; then
     port=8787
 fi
 
+waldronIMG=waldronlab/bioconductor_full:"$version"
 
-dockertag=$version
-
-dockerIMG=bioconductor/bioconductor_full:"$dockertag"
-
-waldronIMG=waldronlab/bioconductor_full:"$dockertag"
-
-docker pull $dockerIMG
-
-docker image build \
-    --build-arg USER_ID=$(id -u ${USER}) \
-    --build-arg GROUP_ID=$(id -g ${USER}) \
-    --build-arg VERSION=${dockertag} \
-    -t $dockerIMG .
+docker pull $waldronIMG
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_HOME="$HOME/dockerhome"
@@ -69,12 +58,12 @@ if [ $envtype == "rstudio" ]; then
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -p $port:8787 \
-        $dockerIMG
+        $waldronIMG
 elif [ $envtype == "shell" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
-        $dockerIMG bash
+        $waldronIMG bash
 fi
 
