@@ -1,2 +1,2 @@
 Bootstrap: docker
-From: waldronlab/bioconductor_devel
+From: waldronlab/bioconductor

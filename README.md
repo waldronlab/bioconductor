@@ -1,6 +1,6 @@
 | Hub |    Status     |
 | --- | --------------- |
-| Docker | [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor_devel.svg)](https://hub.docker.com/r/waldronlab/bioconductor_devel "page on dockerhub") |
+| Docker | [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor.svg)](https://hub.docker.com/r/waldronlab/bioconductor "page on dockerhub") |
 | Singularity | [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/2232) |
 
 # About the "bioconductor" script
@@ -53,16 +53,15 @@ facilities.
 If you have singularity installed, pull the singularity images as follows:
 
 ```
-singularity pull shub://waldronlab/bioconductor_devel
-singularity pull shub://waldronlab/bioconductor_release
+singularity pull shub://waldronlab/bioconductor
 ```
 
 So far I have only used singularity for bash and R, with aliases like these
 (assuming you did the above pull commands from your home directory):
 
 ```
-alias singulaR="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg R"
-alias singularbash="singularity shell $HOME/waldronlab-bioconductor_devel-master-latest.simg bash"
+alias singulaR="singularity shell $HOME/waldronlab-bioconductor-master-latest.simg R"
+alias singularbash="singularity shell $HOME/waldronlab-bioconductor-master-latest.simg bash"
 ```
 
 Note that default behavior in singularity is to mount your home (and several
@@ -80,7 +79,7 @@ Preferences -> File Sharing). Last I checked, this was already the
 case by default. You can also change the allotted system resources if
 you want.
 3. Copy the
-[bioconductor](https://github.com/waldronlab/bioconductor_devel/blob/master/bioconductor)
+[bioconductor](https://github.com/waldronlab/bioconductor/blob/master/bioconductor)
 script from this repo to somewhere in your $PATH. Modify as you see
 fit, e.g. if you want to mount different directories or in a different
 place than `~/dockerhome`, or change the rstudio password.  Make sure
