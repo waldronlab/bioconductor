@@ -1,7 +1,8 @@
-| Hub |    Status     |
-| --- | --------------- |
-| Docker | [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor.svg)](https://hub.docker.com/r/waldronlab/bioconductor "page on dockerhub") |
-| Singularity | [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg)](https://singularity-hub.org/collections/2232) |
+| Hub |    Version     | Status |
+| --- | --------------- |--------------- |
+| Docker | [![](https://images.microbadger.com/badges/version/waldronlab/bioconductor:devel.svg)](https://microbadger.com/images/waldronlab/bioconductor:devel)| [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor:devel.svg)](https://microbadger.com/images/waldronlab/bioconductor:devel) |
+| Docker | [![](https://images.microbadger.com/badges/version/waldronlab/bioconductor:release.svg)](https://microbadger.com/images/waldronlab/bioconductor:release)| [![](https://images.microbadger.com/badges/image/waldronlab/bioconductor:release.svg)](https://microbadger.com/images/waldronlab/bioconductor:release) |
+| Docker | [![](https://images.microbadger.com/badges/version/waldronlab/bioconductor:RELEASE_3_10.svg)](https://microbadger.com/images/waldronlab/bioconductor:RELEASE_3_10)|[![](https://images.microbadger.com/badges/image/waldronlab/bioconductor:RELEASE_3_10.svg)](https://microbadger.com/images/waldronlab/bioconductor:RELEASE_3_10) |
 
 # About the "bioconductor" script
 
