@@ -1,4 +1,4 @@
-FROM bioconductor/bioconductor_full:RELEASE_3_10
+FROM bioconductor/bioconductor_full:release
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
