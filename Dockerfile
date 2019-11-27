@@ -8,7 +8,6 @@ RUN apt-get update \
     tmux \
     vim
 
-USER bioc
-
 RUN R -e "BiocManager::install('tinytex'); tinytex::install_tinytex()"
 
+RUN chmod -R a+w /usr/local/lib/R/site-library/ /usr/local/lib/R/library/
