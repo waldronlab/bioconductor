@@ -1,10 +1,13 @@
 FROM bioconductor/bioconductor_full:RELEASE_3_10
 
+# Note: texinfo seems still required if tinytex is used instead (below), 
+# but texlive and texlive-fonts-extra are not.
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    texinfo \ # STILL needed if using tinytex below
-    texlive \   # not needed if using tinytex below
-    texlive-fonts-extra \  # not needed if using tinytex below
+    texinfo \
+    texlive \
+    texlive-fonts-extra \
     htop \
     locate \
     tree \
