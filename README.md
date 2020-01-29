@@ -15,7 +15,7 @@ Docker container and host filesystem here.
 2. It results in user-installed packages being added to the host directory
 `~/.docker-devel-packages` or `~/.docker-release-packages`.
 3. It runs the Docker container
-[bioconductor/bioconductor_full](https://github.com/bioconductor/bioconductor_full)
+[bioconductor/bioconductor_docker](https://github.com/bioconductor/bioconductor_docker)
 
 ## Inputs to the 'biconductor' script
 
@@ -34,15 +34,12 @@ supported environements:
 
 Note. The default user environment is the `rstudio` session
 
-# About the `bioconductor_full` docker image
+# About the `bioconductor_docker` docker image
 
-The `bioconductor/bioconductor_full` image is built for both release and devel
+The `bioconductor/bioconductor_docker` image is built for both release and devel
 versions of Bioconductor. It includes system dependencies so that almost every
 Bioconductor package can be installed using `BiocManager::install()` with no
-further troubles. As of the last testing, the image successfully
-installed all but 10 of over 1,600 packages (testing done with this
-[gist](https://gist.github.com/lwaldron/3b002e72b4e99fc093f8dace4ab38bf6)). For
-almost everyone, this means no more errors when trying to install a package.
+further troubles.  For almost everyone, this means no more errors when trying to install a package.
 
 # For singularity users
 
