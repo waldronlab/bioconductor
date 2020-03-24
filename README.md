@@ -48,25 +48,24 @@ providers, whereas [Singularity](https://www.sylabs.io/singularity/) is (far)
 more likely to be supported by university high-performance computing
 facilities.
 
-If you have singularity installed, pull the singularity images as follows:
+If you have singularity installed, pull and the singularity images as follows (or substitute "devel" with "release" for the release version):
 
 ```
-singularity pull shub://waldronlab/bioconductor
+singularity build $HOME/bioconductor-devel.img docker://waldronlab/bioconductor:devel
 ```
 
-So far I have only used singularity for bash and R, with aliases like these
-(assuming you did the above pull commands from your home directory):
+So far I have only used singularity for bash and R, with aliases like these:
 
 ```
-alias singulaR="singularity shell $HOME/waldronlab-bioconductor-master-latest.simg R"
-alias singularbash="singularity shell $HOME/waldronlab-bioconductor-master-latest.simg bash"
+alias singulaR="singularity shell $HOME/bioconductor-devel.simg R"
+alias singularbash="singularity shell $HOME/bioconductor-devel.simg bash"
 ```
 
 Note that default behavior in singularity is to mount your home (and several
 other) directories as the home directory within the container, while
 maintaining your user permissions. This makes all the docker efforts to mount
 volumes for your container package and home directories unnecessary. I haven't
-yet tried running rstudio via singularity, but it shouldn't be too hard?
+yet tried running rstudio via singularity, but it should be possible?
 
 # Using the `bioconductor` script and docker container
 
