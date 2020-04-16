@@ -21,9 +21,9 @@ if [ -z "${port// }" ]; then
     port=8787
 fi
 
-waldronIMG=waldronlab/bioconductor_full:"$version"
+biocDocker=bioconductor/bioconductor_docker:"$version"
 
-docker pull $waldronIMG
+docker pull $biocDocker
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_HOME="$HOME/dockerhome"
@@ -58,12 +58,12 @@ if [ $envtype == "rstudio" ]; then
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -p $port:8787 \
-        $waldronIMG
+        $biocDocker
 elif [ $envtype == "shell" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
-        $waldronIMG bash
+        $biocDocker bash
 fi
 
