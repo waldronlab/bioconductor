@@ -1,4 +1,4 @@
-FROM bioconductor/bioconductor_docker:RELEASE_3_11
+FROM bioconductor/bioconductor_docker:RELEASE_3_12
 
 # Note: texinfo seems still required if tinytex is used instead (below), 
 # but texlive and texlive-fonts-extra are not.
