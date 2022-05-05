@@ -9,8 +9,8 @@ on:
   schedule:
     - cron: '38 7 * * *'
   push:
-    branches: [ devel ]
-    # Publish semver tags as releases.
+    branches: [ devel, release ]
+    # Publish server tags as releases.
     tags: [ 'v*.*.*' ]
 
 env:
