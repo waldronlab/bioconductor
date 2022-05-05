@@ -4,8 +4,8 @@ version=$1
 envtype=$2
 port=$3
 
-if [ -z "${version// }" ] || [ $version != "release" -a $version != "devel" ]; then
-    echo "Enter either 'devel' or 'release' version"
+if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && [ $version != "devel" ]; then
+    echo "Enter either 'devel' or 'RELEASE_X_Y' version"
     exit 1
 fi
 
@@ -21,9 +21,9 @@ if [ -z "${port// }" ]; then
     port=8787
 fi
 
-biocDocker=bioconductor/bioconductor_docker:"$version"
+biocdocker=bioconductor/bioconductor_docker:"$version"
 
-docker pull $biocDocker
+docker pull $biocdocker
 
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_HOME="$HOME/dockerhome"
@@ -58,12 +58,12 @@ if [ $envtype == "rstudio" ]; then
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -p $port:8787 \
-        $biocDocker
+        $biocdocker
 elif [ $envtype == "shell" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
-        $biocDocker bash
+        $biocdocker bash
 fi
 
