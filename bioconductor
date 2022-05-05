@@ -54,7 +54,7 @@ if [ $envtype == "rstudio" ]; then
 fi
 
 if [ $envtype == "rstudio" ]; then
-    docker run -e PASSWORD=rstudiopassword \
+    docker run -e PASSWORD=bioc \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -p $port:8787 \
