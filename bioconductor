@@ -57,6 +57,7 @@ if [ $envtype == "rstudio" ]; then
     docker run -e PASSWORD=bioc \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        -e USERID=$UID \
         -p $port:8787 \
         $biocdocker
 elif [ $envtype == "shell" ]; then
