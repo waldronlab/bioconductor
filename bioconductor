@@ -4,7 +4,7 @@ version=$1
 envtype=$2
 port=$3
 
-if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && [ $version != "devel" ]; then
+if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && [[ $version != devel* ]]; then
     echo "Enter either 'devel' or 'RELEASE_X_Y' version"
     exit 1
 fi
@@ -43,6 +43,12 @@ GRENV=`grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron`
 
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
     echo $GPAT >> $DOCKER_HOME/.Renviron
+fi
+
+RPROF="$HOME/.Rprofile"
+
+if [ -e ${RPROF} ]; then
+    echo $RPROF >> $DOCKER_HOME/.Rprofile
 fi
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
