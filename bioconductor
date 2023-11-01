@@ -4,8 +4,10 @@ version=$1
 envtype=$2
 port=$3
 
-if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && [[ $version != devel* ]]; then
-    echo "Enter either 'devel' or 'RELEASE_X_Y' version"
+GVER=`echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*"`
+
+if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && ([[ $version != devel* ]] && [ -z "${GVER// }" ]); then
+    echo "Enter either 'devel*', 'X.Y', or 'RELEASE_X_Y' version"
     exit 1
 fi
 
