@@ -47,11 +47,16 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
     echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
-RPROF="$HOME/.Rprofile"
+copy_config() {
+    for arg in "$@"; do
+        FILE="$HOME/$arg"
+        if [ -e ${FILE} ] && [ ! -e $DOCKER_HOME/$arg ]; then
+            cat $FILE > $DOCKER_HOME/$arg
+        fi
+    done
+}
 
-if [ -e ${RPROF} ]; then
-    echo $RPROF >> $DOCKER_HOME/.Rprofile
-fi
+copy_config .Rprofile .gitconfig .inputrc
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
 echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
