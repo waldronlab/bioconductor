@@ -1,7 +1,10 @@
 #!/bin/bash
 
+## version is RELEASE_X_Y
 version=$1
+## either rstudio or shell
 envtype=$2
+## defaults to 8787
 port=$3
 
 GVER=`echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*"`
@@ -27,7 +30,8 @@ biocdocker=bioconductor/bioconductor_docker:"$version"
 
 docker pull $biocdocker
 
-DOCKER_RPKGS="$HOME/.docker-$version-packages"
+# DOCKER_RPKGS="$HOME/.docker-$version-packages"
+DOCKER_RPKGS="/media/mr148/1D24A0EA4286043C/docker-$version"
 DOCKER_HOME="$HOME/dockerhome"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
 
@@ -63,7 +67,7 @@ echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
 echo $envtype
 
 if [ $envtype == "rstudio" ]; then
-    echo "Open rstudio running Bioconductor version $version at http://localhost:$port"
+    echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
 fi
 
 if [ $envtype == "rstudio" ]; then
