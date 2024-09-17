@@ -30,8 +30,7 @@ biocdocker=bioconductor/bioconductor_docker:"$version"
 
 docker pull $biocdocker
 
-# DOCKER_RPKGS="$HOME/.docker-$version-packages"
-DOCKER_RPKGS="/media/mr148/1D24A0EA4286043C/docker-$version"
+DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_HOME="$HOME/dockerhome"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
 
