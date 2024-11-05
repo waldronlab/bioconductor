@@ -50,7 +50,7 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
     echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
-HLIBENV=`grep "R_LIBS_USER" $DOCKER_HOME/.Renviron`
+HLIBUSER=`grep "R_LIBS_USER" ~/.Renviron`
 
 if [ -z "${HLIBENV// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
