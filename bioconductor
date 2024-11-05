@@ -50,6 +50,12 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
     echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
+HLIBENV=`grep "R_LIBS_USER" $DOCKER_HOME/.Renviron`
+
+if [ -z "${HLIBENV// }" ]; then
+    echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
+fi
+
 copy_config() {
     for arg in "$@"; do
         FILE="$HOME/$arg"
@@ -75,7 +81,8 @@ if [ $envtype == "rstudio" ]; then
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$UID \
         -p $port:8787 \
-        $biocdocker
+        $biocdocker \
+        bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
 elif [ $envtype == "shell" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
@@ -83,4 +90,5 @@ elif [ $envtype == "shell" ]; then
         -w /home/rstudio \
         $biocdocker bash
 fi
+
 
