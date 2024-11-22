@@ -2,7 +2,7 @@
 
 ## version is RELEASE_X_Y
 version=$1
-## either rstudio or shell
+## either rstudio or bash
 envtype=$2
 ## defaults to 8787
 port=$3
@@ -17,8 +17,12 @@ fi
 if [ -z "${envtype// }" ]; then
     echo "Empty 'envtype' using default: rstudio"
     envtype="rstudio"
-elif [ $envtype != "rstudio" ] && [ $envtype != "shell" ]; then
-    echo "Enter either 'rstudio' or 'shell' environment type"
+elif [ $envtype == "shell" ]; then
+    envtype="bash"
+fi
+
+if [[ $envtype != "rstudio" && $envtype != "bash" ]]; then
+    echo "Enter either 'rstudio' or 'bash' environment type"
     exit 2
 fi
 
@@ -83,7 +87,7 @@ if [ $envtype == "rstudio" ]; then
         -p $port:8787 \
         $biocdocker \
         bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
-elif [ $envtype == "shell" ]; then
+elif [ $envtype == "bash" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
