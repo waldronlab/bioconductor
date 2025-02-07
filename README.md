@@ -120,6 +120,6 @@ alias Rdevel="bioconductor devel R"
 
 # TODO
 
-The `bioconductor` script could provide start & stop and arguments for the volume location etc.
+The `bioconductor` script could provide start & stop.
 
 
