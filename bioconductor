@@ -1,14 +1,13 @@
 #!/bin/bash
-
 show_help() {
     echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
-    echo "  -v version     Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
-    echo "  -e envtype     Specify the environment type ('rstudio' or 'bash'). Default is 'rstudio'."
-    echo "  -p port        Specify the port number. Default is 8787."
-    echo "  -w password    Specify the RStudio password. Default is 'bioc'."
-    echo "  -d dockerhome  Specify the Docker home directory. Default is '$HOME/dockerhome'."
-    echo "  -l             List all available Bioconductor Docker versions."
-    echo "  -h             Show this help message."
+    echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
+    echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
+    echo "  -p port       Specify the port number. Default is 8787."
+    echo "  -w password   Specify the RStudio password. Default is 'bioc'."
+    echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
+    echo "  -l            List all available Bioconductor Docker versions."
+    echo "  -h            Show this help message."
     echo ""
     echo "The \$DOCKER_RPKGS environment variable is used to specify the directory on the host machine"
     echo "where R packages will be stored. This directory is mounted into the Docker container at"
@@ -77,8 +76,8 @@ elif [ "$envtype" == "shell" ]; then
     envtype="bash"
 fi
 
-if [[ "$envtype" != "rstudio" && "$envtype" != "bash" ]]; then
-    echo "Enter either 'rstudio' or 'bash' environment type"
+if [[ "$envtype" != "rstudio" && "$envtype" != "bash" && "$envtype" != "R" ]]; then
+    echo "Enter either 'rstudio', 'bash', or 'R' environment type"
     exit 2
 fi
 
@@ -116,12 +115,18 @@ copy_config() {
 
 copy_config .Rprofile .gitconfig .inputrc
 
+echo ""
+echo "=================================================="
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
 echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
+echo "=================================================="
+echo ""
 
 if [ "$envtype" == "rstudio" ]; then
+    echo "=================================================="
     echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
     echo "Login with username: rstudio and password: $password"
+    echo "=================================================="
     docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
@@ -135,4 +140,10 @@ elif [ "$envtype" == "bash" ]; then
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
         $biocdocker bash
+elif [ "$envtype" == "R" ]; then
+    docker run -ti --user rstudio \
+        -v $DOCKER_HOME:/home/rstudio \
+        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        -w /home/rstudio \
+        $biocdocker R
 fi
