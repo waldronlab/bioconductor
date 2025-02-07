@@ -1,15 +1,52 @@
 #!/bin/bash
 
-## version is RELEASE_X_Y
-version=$1
-## either rstudio or bash
-envtype=$2
-## defaults to 8787
-port=$3
+show_help() {
+    echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-h]"
+    echo "  -v version   Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
+    echo "  -e envtype   Specify the environment type ('rstudio' or 'bash'). Default is 'rstudio'."
+    echo "  -p port      Specify the port number. Default is 8787."
+    echo "  -w password  Specify the RStudio password. Default is 'bioc'."
+    echo "  -h           Show this help message."
+}
 
-GVER=`echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*"`
+version=""
+envtype="rstudio"
+port=8787
+password="bioc"
 
-if [ -z "${version// }" ] || [[ $version != RELEASE_* ]] && ([[ $version != devel* ]] && [ -z "${GVER// }" ]); then
+while getopts "v:e:p:w:h" opt; do
+    case ${opt} in
+        v )
+            version=$OPTARG
+            ;;
+        e )
+            envtype=$OPTARG
+            ;;
+        p )
+            port=$OPTARG
+            ;;
+        w )
+            password=$OPTARG
+            ;;
+        h )
+            show_help
+            exit 0
+            ;;
+        \? )
+            show_help
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$version" ]; then
+    echo "Error: Version is required."
+    show_help
+    exit 1
+fi
+
+GVER=$(echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*")
+if [[ -z "${version// }" || ($version != RELEASE_* && $version != devel* && -z "${GVER// }") ]]; then
     echo "Enter either 'devel*', 'X.Y', or 'RELEASE_X_Y' version"
     exit 1
 fi
@@ -17,45 +54,35 @@ fi
 if [ -z "${envtype// }" ]; then
     echo "Empty 'envtype' using default: rstudio"
     envtype="rstudio"
-elif [ $envtype == "shell" ]; then
+elif [ "$envtype" == "shell" ]; then
     envtype="bash"
 fi
 
-if [[ $envtype != "rstudio" && $envtype != "bash" ]]; then
+if [[ "$envtype" != "rstudio" && "$envtype" != "bash" ]]; then
     echo "Enter either 'rstudio' or 'bash' environment type"
     exit 2
 fi
 
-if [ -z "${port// }" ]; then
-    port=8787
-fi
-
 biocdocker=bioconductor/bioconductor_docker:"$version"
-
 docker pull $biocdocker
-
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 DOCKER_HOME="$HOME/dockerhome"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
-
 mkdir -p "$DOCKER_RPKGS"
 mkdir -p "$DOCKER_HOME"
 
-if [ ! -f "$DOCKER_HOME"/.Renviron ]; then
+if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
 TOKEN_EXP='GITHUB_[P|T].*'
-
-GPAT=`grep "$TOKEN_EXP" ~/.Renviron`
-GRENV=`grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron`
-
+GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
+GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
     echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
-HLIBUSER=`grep "R_LIBS_USER" ~/.Renviron`
-
+HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
 if [ -z "${HLIBENV// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
 fi
@@ -73,26 +100,21 @@ copy_config .Rprofile .gitconfig .inputrc
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
 echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
-echo $envtype
 
-if [ $envtype == "rstudio" ]; then
+if [ "$envtype" == "rstudio" ]; then
     echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
-fi
-
-if [ $envtype == "rstudio" ]; then
-    docker run -e PASSWORD=bioc \
+    echo "Login with username: rstudio and password: $password"
+    docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$UID \
         -p $port:8787 \
         $biocdocker \
         bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
-elif [ $envtype == "bash" ]; then
+elif [ "$envtype" == "bash" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
         $biocdocker bash
 fi
-
-
