@@ -1,18 +1,18 @@
 #!/bin/bash
 
 show_help() {
-    echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-h]"
+    echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
     echo "  -v version     Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
-    echo "                 If no version is specified, list all available versions."
     echo "  -e envtype     Specify the environment type ('rstudio' or 'bash'). Default is 'rstudio'."
     echo "  -p port        Specify the port number. Default is 8787."
     echo "  -w password    Specify the RStudio password. Default is 'bioc'."
     echo "  -d dockerhome  Specify the Docker home directory. Default is '$HOME/dockerhome'."
+    echo "  -l             List all available Bioconductor Docker versions."
     echo "  -h             Show this help message."
 }
 
 list_versions() {
-    echo "Fetching available versions from Docker Hub... Use the '-v' flag to specify which version to run."
+    echo "Fetching available versions from Docker Hub..."
     curl -s https://registry.hub.docker.com/v2/repositories/bioconductor/bioconductor_docker/tags?page_size=100 | jq -r '.results[].name'
 }
 
@@ -20,17 +20,12 @@ version=""
 envtype="rstudio"
 port=8787
 password="bioc"
-dockerhome="$HOME/dockerhome"
+DOCKER_HOME="$HOME/dockerhome"
 
-while getopts ":v::e:p:w:d:h" opt; do
+while getopts ":v:e:p:w:d:lh" opt; do
     case ${opt} in
         v )
-            if [ -z "$OPTARG" ]; then
-                list_versions
-                exit 0
-            else
-                version=$OPTARG
-            fi
+            version=$OPTARG
             ;;
         e )
             envtype=$OPTARG
@@ -42,7 +37,11 @@ while getopts ":v::e:p:w:d:h" opt; do
             password=$OPTARG
             ;;
         d )
-            dockerhome=$OPTARG
+            DOCKER_HOME=$OPTARG
+            ;;
+        l )
+            list_versions
+            exit 0
             ;;
         h )
             show_help
@@ -56,8 +55,8 @@ while getopts ":v::e:p:w:d:h" opt; do
 done
 
 if [ -z "$version" ]; then
-    list_versions
-    exit 0
+    echo "Error: Version is required. Use the '-v' flag to specify a version. Use the '-l' flag to list available versions or the '-h' flag for examples."
+    exit 1
 fi
 
 GVER=$(echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*")
@@ -83,29 +82,29 @@ docker pull $biocdocker
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
 mkdir -p "$DOCKER_RPKGS"
-mkdir -p "$dockerhome"
+mkdir -p "$DOCKER_HOME"
 
-if [ ! -f "$dockerhome/.Renviron" ]; then
-    echo "R_LIBS=$R_LIBS" > $dockerhome/.Renviron
+if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
+    echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
 TOKEN_EXP='GITHUB_[P|T].*'
 GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
-GRENV=$(grep "$TOKEN_EXP" $dockerhome/.Renviron)
+GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
-    echo $GPAT >> $dockerhome/.Renviron
+    echo $GPAT >> $DOCKER_HOME/.Renviron
 fi
 
 HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
 if [ -z "${HLIBENV// }" ]; then
-    echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $dockerhome/.Renviron
+    echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
 fi
 
 copy_config() {
     for arg in "$@"; do
         FILE="$HOME/$arg"
-        if [ -e ${FILE} ] && [ ! -e $dockerhome/$arg ]; then
-            cat $FILE > $dockerhome/$arg
+        if [ -e ${FILE} ] && [ ! -e $DOCKER_HOME/$arg ]; then
+            cat $FILE > $DOCKER_HOME/$arg
         fi
     done
 }
@@ -113,13 +112,13 @@ copy_config() {
 copy_config .Rprofile .gitconfig .inputrc
 
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
-echo "RStudio home directory will be mounted on host directory: $dockerhome"
+echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
 
 if [ "$envtype" == "rstudio" ]; then
     echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
     echo "Login with username: rstudio and password: $password"
     docker run -e PASSWORD=$password \
-        -v $dockerhome:/home/rstudio \
+        -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$UID \
         -p $port:8787 \
@@ -127,7 +126,7 @@ if [ "$envtype" == "rstudio" ]; then
         bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
 elif [ "$envtype" == "bash" ]; then
     docker run -ti --user rstudio \
-        -v $dockerhome:/home/rstudio \
+        -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -w /home/rstudio \
         $biocdocker bash
