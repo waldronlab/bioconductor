@@ -3,10 +3,16 @@
 show_help() {
     echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-h]"
     echo "  -v version   Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
+    echo "               If no version is specified, list all available versions."
     echo "  -e envtype   Specify the environment type ('rstudio' or 'bash'). Default is 'rstudio'."
-    echo "  -p port      Specify the port number. Default is 8787."
+    echo "  -p port      Specify the port number for RStudio server. Default is 8787."
     echo "  -w password  Specify the RStudio password. Default is 'bioc'."
     echo "  -h           Show this help message."
+}
+
+list_versions() {
+    echo "Fetching available versions from Docker Hub... Use the '-v' flag to specify which version to run."
+    curl -s https://registry.hub.docker.com/v2/repositories/bioconductor/bioconductor_docker/tags?page_size=100 | jq -r '.results[].name'
 }
 
 version=""
@@ -14,10 +20,15 @@ envtype="rstudio"
 port=8787
 password="bioc"
 
-while getopts "v:e:p:w:h" opt; do
+while getopts ":v::e:p:w:h" opt; do
     case ${opt} in
         v )
-            version=$OPTARG
+            if [ -z "$OPTARG" ]; then
+                list_versions
+                exit 0
+            else
+                version=$OPTARG
+            fi
             ;;
         e )
             envtype=$OPTARG
@@ -40,9 +51,8 @@ while getopts "v:e:p:w:h" opt; do
 done
 
 if [ -z "$version" ]; then
-    echo "Error: Version is required."
-    show_help
-    exit 1
+    list_versions
+    exit 0
 fi
 
 GVER=$(echo "$version" | grep -E "^[3-4]\.[0-9]{1,2}.*")
