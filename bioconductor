@@ -9,6 +9,11 @@ show_help() {
     echo "  -d dockerhome  Specify the Docker home directory. Default is '$HOME/dockerhome'."
     echo "  -l             List all available Bioconductor Docker versions."
     echo "  -h             Show this help message."
+    echo ""
+    echo "The \$DOCKER_RPKGS environment variable is used to specify the directory on the host machine"
+    echo "where R packages will be stored. This directory is mounted into the Docker container at"
+    echo "/usr/local/lib/R/host-site-library. This allows R packages installed in the container to be"
+    echo "persisted on the host machine and shared across multiple containers or sessions."
 }
 
 list_versions() {
