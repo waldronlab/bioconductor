@@ -5,13 +5,12 @@ locally for routine daily usage:
 
 ```bash
 % ./bioconductor -h
-./bioconductor -h
 Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]
   -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y').
   -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'.
   -p port       Specify the port number. Default is 8787.
   -w password   Specify the RStudio password. Default is 'bioc'.
-  -d dockerhome Specify the Docker home directory. Default is '/Users/Levi/dockerhome'.
+  -d dockerhome Specify the Docker home directory. Default is '"$HOME"/dockerhome'.
   -l            List all available Bioconductor Docker versions.
   -h            Show this help message.
 
