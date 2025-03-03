@@ -1,6 +1,6 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
