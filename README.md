@@ -1,10 +1,48 @@
-# About the "bioconductor" script
+# `bioc-run`
 
-This script makes it more convenient to run the Bioconductor docker images
-locally for routine daily usage:
+## Introduction
+
+`bioc-run` is a script that makes it more convenient to run Bioconductor
+Docker images locally. It is intended for routine daily usage.
+
+This script makes it easy to:
+
+1. Run any version of Bioconductor represented by a tag at
+  <https://hub.docker.com/r/bioconductor/bioconductor_docker/tags>
+2. Run command-line `R`, `bash`, or `RStudio`
+3. Have a persistent local packages directory for every version of
+  Bioconductor, and map a local directory to the home directory on the
+  container (i.e., a volume mounts) .
+4. Specify the port and password for `RStudio`
+5. List all available Bioconductor versions
+
+## Pre-requisites
+
+1. An installation of the
+  [Docker Engine](https://docs.docker.com/engine/install/) or
+  [Docker Desktop](https://www.docker.com/products/docker-desktop/) is required.
+2. For the volume mounts, `File Sharing` must be enabled in the Docker
+  settings.
+3. Tested on Mac and Linux operating systems. Windows users may have success
+  with the Windows Subsystem for Linux (WSL).
+
+## Installation
+
+The script can be cloned via the command line (e.g., via SSH):
 
 ```bash
-% ./bioconductor -h
+git clone git@github.com:Bioconductor/bioc-run
+```
+
+## Usage
+
+Run the script directly from the folder (e.g., `./bioc-run`) or see the
+[advanced setup section](#optional-advanced-setup).
+
+From the command-line, type `bioc-run -h` to make sure it's working:
+
+```bash
+% ./bioc-run -h
 Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]
   -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y').
   -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'.
@@ -20,33 +58,33 @@ This directory is mounted into the Docker container at /usr/local/lib/R/host-sit
 This allows R packages installed in the container to be persisted on the host machine and shared across multiple containers or sessions.
 ```
 
-This script makes it easy to:
-1. Run any version of Bioconductor represented by a tag at https://hub.docker.com/r/bioconductor/bioconductor_docker/tags
-2. Run command-line R, bash, or RStudio
-3. Have a persistent local packages directory for every version of Bioconductor, and map the container home directory to a specified local directory.
-4. Specify the port and password for RStudio
-5. List all available Bioconductor versions
+Use <kbd>Ctrl</kbd> + <kbd>C</kbd> (<kbd>⌘ Command</kbd> + <kbd>C</kbd> on OSX)
+to stop the `RStudio` server.
 
-# About the `bioconductor_docker` docker image
+## Docker Containers for Bioconductor
 
-The `bioconductor/bioconductor_docker` image is built for both release and devel
-versions of Bioconductor. It includes system dependencies so that almost every
-Bioconductor package can be installed using `BiocManager::install()` with no
-further troubles.  For almost everyone, this means no more errors when trying to install a package.
+For more information about Docker containers for Bioconductor, see
+<https://bioconductor.org/help/docker/>.
 
-# Using the `bioconductor` script and docker container
+## (Optional) Advanced Setup
 
-1. Install a [docker client](https://www.docker.com/get-started) for
-your operating system.
-2. Make sure home directories are being shared (Whale icon ->
-Preferences -> File Sharing). Last I checked, this was already the
-case by default. You can also change the allotted system resources if
-you want.
-3. Copy the
-[bioconductor](https://github.com/waldronlab/bioconductor/blob/devel/bioconductor)
-script from this repo to somewhere in your $PATH.  Make sure
-the script is executable (e.g. `chmod a+x bioconductor`).
-4. From the command-line, type `bioconductor -h` to make sure it's working, then get started.
-There are additional usage tips at https://github.com/Bioconductor/bioc_docker.
+If you want to use the `bioc-run` script without being in the folder,
+do either of the following:
 
-That's it! You can use Ctrl-C (Cmd-C on OSX) to stop the RStudio server.
+1. Create a Symbolic Link
+    * On macOS or Linux, create a "shortcut" in `~/bin/` with
+      `ln -s /path/to/bioc-run ~/bin/bioc-run`
+
+**Note**. Ensure that `/home/user/bin/` is in the `$PATH`
+
+2. Add it to the `$PATH`
+    * If the `bioc-run` script is in a folder that is already in the
+      `$PATH`, it can be run from any location in the terminal.
+    * If comfortable editing the shell's configuration file (like
+      `~/.bashrc` or `~/.zshrc`), add a new folder to the `$PATH`.
+      Add `export PATH="$PATH:/path/to/folder"` to the end of the shell
+      configuration file. Replace `/path/to/folder` with the actual folder
+      that the script is in.
+
+**Note**. Make sure the script is executable (e.g. `chmod a+x bioc-run`).
+
