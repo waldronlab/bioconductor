@@ -133,7 +133,16 @@ docker run --rm \
       $biocdocker \
       bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/r/host-site-library'
 
-if [ "$envtype" == "rstudio" ]; then
+if [ "$envtype" == "reset-ownership" ]; then
+    docker run -e PASSWORD=$password \
+        -v $DOCKER_HOME:/home/rstudio \
+        -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+        -e USERID=$(cat /etc/passwd | grep "^$(whoami):" | awk -F':' '{print $3}') \
+        -e GROUPID=$(cat /etc/passwd | grep "^$(whoami):" | awk -F':' '{print $4}') \
+        -u root \
+        $biocdocker \
+        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/r/host-site-library'
+elif [ "$envtype" == "rstudio" ]; then
     echo "=================================================="
     echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
     echo "Login with username: rstudio and password: $password"
@@ -144,7 +153,7 @@ if [ "$envtype" == "rstudio" ]; then
         -e USERID=$UID \
         -p $port:8787 \
         $biocdocker \
-        bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
+        bash -c '/init'
 elif [ "$envtype" == "bash" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
