@@ -122,6 +122,13 @@ echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
 echo "=================================================="
 echo ""
 
+docker run --rm \
+      -v $DOCKER_HOME:/home/rstudio \
+      -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+      -u root \
+      $biocdocker \
+      bash -c 'chown -R 1000:1000 /home/rstudio /usr/local/lib/r/host-site-library'
+
 if [ "$envtype" == "rstudio" ]; then
     echo "=================================================="
     echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
