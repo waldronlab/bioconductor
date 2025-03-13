@@ -1,6 +1,6 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
@@ -8,6 +8,9 @@ show_help() {
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
+    echo "  -r            Reset the ownership of '$DOCKER_HOME' and '$DOCKER_RPKGS' to '$USERID:$GROUPID'."
+    echo "                This option ensures that files in volumes are owned by the same user and group"
+    echo "                on the host system."
     echo ""
     echo "The \$DOCKER_RPKGS environment variable is optional and used to specify the R packages directory on the host machine."
     echo "If not set, the default is '\$HOME/.docker-\$version-packages'."
@@ -26,7 +29,7 @@ port=8787
 password="bioc"
 DOCKER_HOME="$HOME/dockerhome"
 
-while getopts ":v:e:p:w:d:lh" opt; do
+while getopts ":v:e:p:w:d:lhr" opt; do
     case ${opt} in
         v )
             version=$OPTARG
@@ -50,6 +53,9 @@ while getopts ":v:e:p:w:d:lh" opt; do
         h )
             show_help
             exit 0
+            ;;
+        r )
+            resetchown="true"
             ;;
         \? )
             show_help
@@ -76,8 +82,8 @@ elif [ "$envtype" == "shell" ]; then
     envtype="bash"
 fi
 
-if [[ "$envtype" != "rstudio" && "$envtype" != "bash" && "$envtype" != "R" && "$envtype" != "reset-ownership" ]]; then
-    echo "Enter either 'rstudio', 'bash', 'R', or 'reset-ownership' environment type"
+if [[ "$envtype" != "rstudio" && "$envtype" != "bash" && "$envtype" != "R" ]]; then
+    echo "Enter either 'rstudio', 'bash', or 'R' environment type"
     exit 2
 fi
 
@@ -115,8 +121,7 @@ copy_config() {
 
 copy_config .Rprofile .gitconfig .inputrc
 
-
-if [ "$envtype" == "reset-ownership" ]; then
+if [ -n "$resetchown" ]; then
     IFS=':' read USERID GROUPID <<<$(grep "^$(whoami):" /etc/passwd | cut -d':' -f3,4)
     echo ""
     echo "=================================================="
