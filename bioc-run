@@ -119,8 +119,19 @@ echo ""
 echo "=================================================="
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
 echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
+echo "NOTE. These directories need to be writable by group with GID 1000"
+echo "corresponding to rstudio user in the containers."
+echo "This will be forced in this script."
 echo "=================================================="
 echo ""
+
+docker run --rm \
+      -e USERID=$UID \
+      -v $DOCKER_HOME:/home/rstudio \
+      -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+      -u root \
+      $biocdocker \
+      bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/r/host-site-library'
 
 if [ "$envtype" == "rstudio" ]; then
     echo "=================================================="
