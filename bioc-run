@@ -1,6 +1,6 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
@@ -8,6 +8,9 @@ show_help() {
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
+    echo "  -r            Reset the ownership of '$DOCKER_HOME' and '$DOCKER_RPKGS' to '$USERID:$GROUPID'."
+    echo "                This option ensures that files in volumes are owned by the same user and group"
+    echo "                on the host system."
     echo ""
     echo "The \$DOCKER_RPKGS environment variable is optional and used to specify the R packages directory on the host machine."
     echo "If not set, the default is '\$HOME/.docker-\$version-packages'."
@@ -26,7 +29,7 @@ port=8787
 password="bioc"
 DOCKER_HOME="$HOME/dockerhome"
 
-while getopts ":v:e:p:w:d:lh" opt; do
+while getopts ":v:e:p:w:d:lhr" opt; do
     case ${opt} in
         v )
             version=$OPTARG
@@ -50,6 +53,9 @@ while getopts ":v:e:p:w:d:lh" opt; do
         h )
             show_help
             exit 0
+            ;;
+        r )
+            resetchown="true"
             ;;
         \? )
             show_help
@@ -115,6 +121,23 @@ copy_config() {
 
 copy_config .Rprofile .gitconfig .inputrc
 
+if [ -n "$resetchown" ]; then
+    IFS=':' read USERID GROUPID <<<$(grep "^$(whoami):" /etc/passwd | cut -d':' -f3,4)
+    echo ""
+    echo "=================================================="
+    echo "Resetting ownership of '$DOCKER_HOME' and '$DOCKER_RPKGS' to '$USERID:$GROUPID'"
+    echo "=================================================="
+    docker run -e PASSWORD=$password \
+        -v $DOCKER_HOME:/home/rstudio \
+        -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+        -e USERID=$USERID \
+        -e GROUPID=$GROUPID \
+        -u root \
+        $biocdocker \
+        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/r/host-site-library'
+        exit
+fi
+
 echo ""
 echo "=================================================="
 echo "Installed packages will go in host directory: $DOCKER_RPKGS"
@@ -144,7 +167,7 @@ if [ "$envtype" == "rstudio" ]; then
         -e USERID=$UID \
         -p $port:8787 \
         $biocdocker \
-        bash -c 'chown -R rstudio /home/rstudio; chown -R rstudio /usr/local/lib/R/host-site-library; /init'
+        bash -c '/init'
 elif [ "$envtype" == "bash" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
