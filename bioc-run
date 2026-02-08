@@ -17,8 +17,12 @@ show_help() {
     echo "  - For 'bash' mode: passed as arguments to bash (e.g., '-c \"command\"')"
     echo "  - For 'rstudio' mode: extra arguments are ignored with a warning"
     echo ""
+    echo "For 'R' and 'bash' modes, the current working directory is mounted at /workspace"
+    echo "inside the container, allowing you to access local files directly."
+    echo ""
     echo "Examples:"
     echo "  bioc-run -v devel -e R CMD build ."
+    echo "  bioc-run -v devel -e R CMD build myPackage/"
     echo "  bioc-run -v devel -e R --version"
     echo "  bioc-run -v devel -e bash -c 'R CMD build .'"
     echo ""
@@ -191,12 +195,14 @@ elif [ "$envtype" == "bash" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-        -w /home/rstudio \
+        -v "$(pwd)":/workspace \
+        -w /workspace \
         $biocdocker bash "$@"
 elif [ "$envtype" == "R" ]; then
     docker run -ti --user rstudio \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-        -w /home/rstudio \
+        -v "$(pwd)":/workspace \
+        -w /workspace \
         $biocdocker R "$@"
 fi
