@@ -206,17 +206,39 @@ if [ "$envtype" == "rstudio" ]; then
         $biocdocker \
         bash -c '/init'
 elif [ "$envtype" == "bash" ]; then
-    docker run -ti --user rstudio \
-        -v $DOCKER_HOME:/home/rstudio \
-        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-        -v "$(pwd)":/workspace \
-        -w /workspace \
-        $biocdocker bash "$@"
+    # On Linux, run as current user to avoid permission issues with mounted workspace
+    # On macOS/Windows, run as rstudio user (Docker Desktop handles user mapping)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        docker run -ti --user $UID:$(id -g) \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker bash "$@"
+    else
+        docker run -ti --user rstudio \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker bash "$@"
+    fi
 elif [ "$envtype" == "R" ]; then
-    docker run -ti --user rstudio \
-        -v $DOCKER_HOME:/home/rstudio \
-        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
-        -v "$(pwd)":/workspace \
-        -w /workspace \
-        $biocdocker R "$@"
+    # On Linux, run as current user to avoid permission issues with mounted workspace
+    # On macOS/Windows, run as rstudio user (Docker Desktop handles user mapping)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        docker run -ti --user $UID:$(id -g) \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker R "$@"
+    else
+        docker run -ti --user rstudio \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker R "$@"
+    fi
 fi
