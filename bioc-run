@@ -1,6 +1,6 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-- args...]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-q] [-- args...]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
@@ -8,6 +8,7 @@ show_help() {
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
+    echo "  -q            Quiet mode. Suppress informational messages."
     echo "  -r            Reset the ownership of '$DOCKER_HOME' and '$DOCKER_RPKGS' to '$USERID:$GROUPID'."
     echo "                This option ensures that files in volumes are owned by the same user and group"
     echo "                on the host system."
@@ -47,8 +48,9 @@ envtype="rstudio"
 port=8787
 password="bioc"
 DOCKER_HOME="$HOME/dockerhome"
+quiet=false
 
-while getopts ":v:e:p:w:d:lhr" opt; do
+while getopts ":v:e:p:w:d:lhrq" opt; do
     case ${opt} in
         v )
             version=$OPTARG
@@ -75,6 +77,9 @@ while getopts ":v:e:p:w:d:lhr" opt; do
             ;;
         r )
             resetchown="true"
+            ;;
+        q )
+            quiet=true
             ;;
         \? )
             show_help
@@ -166,15 +171,17 @@ if [ -n "$resetchown" ]; then
         exit
 fi
 
-echo ""
-echo "=================================================="
-echo "Installed packages will go in host directory: $DOCKER_RPKGS"
-echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
-echo "NOTE. These directories need to be writable by group with GID 1000"
-echo "corresponding to rstudio user in the containers."
-echo "This will be forced in this script."
-echo "=================================================="
-echo ""
+if [ "$quiet" = false ]; then
+    echo ""
+    echo "=================================================="
+    echo "Installed packages will go in host directory: $DOCKER_RPKGS"
+    echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
+    echo "NOTE. These directories need to be writable by group with GID 1000"
+    echo "corresponding to rstudio user in the containers."
+    echo "This will be forced in this script."
+    echo "=================================================="
+    echo ""
+fi
 
 docker run --rm \
       -e USERID=$UID \
@@ -185,10 +192,12 @@ docker run --rm \
       bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/r/host-site-library'
 
 if [ "$envtype" == "rstudio" ]; then
-    echo "=================================================="
-    echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
-    echo "Login with username: rstudio and password: $password"
-    echo "=================================================="
+    if [ "$quiet" = false ]; then
+        echo "=================================================="
+        echo "Open RStudio running Bioconductor version $version at http://localhost:$port"
+        echo "Login with username: rstudio and password: $password"
+        echo "=================================================="
+    fi
     docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
