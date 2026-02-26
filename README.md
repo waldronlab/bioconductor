@@ -12,9 +12,12 @@ This script makes it easy to:
 2. Run command-line `R`, `bash`, or `RStudio`
 3. Have a persistent local packages directory for every version of
   Bioconductor, and map a local directory to the home directory on the
-  container (i.e., a volume mounts) .
+  container (i.e., a volume mounts).
 4. Specify the port and password for `RStudio`
 5. List all available Bioconductor versions
+6. Pass additional arguments to `R` or `bash` (e.g., `R CMD build`)
+7. Automatically mount the current working directory to `/workspace` in `R` and
+  `bash` modes.
 
 ## Pre-requisites
 
@@ -43,14 +46,37 @@ From the command-line, type `bioc-run -h` to make sure it's working:
 
 ```bash
 % ./bioc-run -h
-Usage: bioconductor.sh [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h]
+Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-q] [-- args...]
   -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y').
   -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'.
   -p port       Specify the port number. Default is 8787.
   -w password   Specify the RStudio password. Default is 'bioc'.
-  -d dockerhome Specify the Docker home directory. Default is '"$HOME"/dockerhome'.
+  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'.
   -l            List all available Bioconductor Docker versions.
   -h            Show this help message.
+  -q            Quiet mode. Suppress informational messages.
+  -r            Reset the ownership of '$DOCKER_HOME' and '$DOCKER_RPKGS' to '$USERID:$GROUPID'.
+                This option ensures that files in volumes are owned by the same user and group
+                on the host system.
+
+Additional arguments after the options will be passed to the environment:
+  - For 'R' mode: passed as arguments to R (e.g., 'CMD build .' or '--version')
+  - For 'bash' mode: passed as arguments to bash (e.g., '-c "command"')
+  - For 'rstudio' mode: extra arguments are ignored with a warning
+
+For 'R' and 'bash' modes, the current working directory is mounted at /workspace
+inside the container, allowing you to access local files directly.
+
+IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict
+with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -r, -h, -l).
+
+Examples:
+  bioc-run -v devel -e R CMD build .
+  bioc-run -v devel -e R CMD build myPackage/
+  bioc-run -v devel -e R --version
+  bioc-run -v devel -e R -- -e "print('hello')"         # Use -- to pass -e to R
+  bioc-run -v devel -e bash -c 'R CMD build .'
+  bioc-run -v devel -e bash -- -c 'echo test'           # Use -- to pass -c to bash
 
 The $DOCKER_RPKGS environment variable is optional and used to specify the R packages directory on the host machine.
 If not set, the default is '$HOME/.docker-$version-packages'.
