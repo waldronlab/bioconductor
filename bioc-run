@@ -1,12 +1,14 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-s provider] [-l] [-h] [-r] [-q] [-- args...]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-s provider] [-f envfile] [-l] [-h] [-r] [-q] [-- args...]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', 'R', or 'Rscript'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
     echo "  -w password   Specify the RStudio password. Default is 'bioc'."
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
     echo "  -s provider   Specify the container registry service provider ('docker' or 'ghcr.io'). Default is 'docker'."
+    echo "  -f envfile    Pass an environment file to Docker container (can be specified multiple times)."
+    echo "                Example: -f ~/.Renviron -f ~/.env"
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
     echo "  -q            Quiet mode. Suppress informational messages."
@@ -24,7 +26,7 @@ show_help() {
     echo "inside the container, allowing you to access local files directly."
     echo ""
     echo "IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict"
-    echo "with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -s, -r, -h, -l)."
+    echo "with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -s, -f, -r, -h, -l)."
     echo ""
     echo "Examples:"
     echo "  bioc-run -v devel -e R CMD build ."
@@ -35,6 +37,7 @@ show_help() {
     echo "  bioc-run -v devel -e Rscript -- -e \"print('hello')\""
     echo "  bioc-run -v devel -e bash -c 'R CMD build .'"
     echo "  bioc-run -v devel -e bash -- -c 'echo test'           # Use -- to pass -c to bash"
+    echo "  bioc-run -v devel -f ~/.Renviron -f ~/.env            # Pass environment files to container"
     echo ""
     echo "The \$DOCKER_RPKGS environment variable is optional and used to specify the R packages directory on the host machine."
     echo "If not set, the default is '\$HOME/.docker-\$version-packages'."
@@ -54,8 +57,9 @@ password="bioc"
 DOCKER_HOME="$HOME/dockerhome"
 quiet=false
 provider="docker"
+env_files=()
 
-while getopts ":v:e:p:w:d:s:lhrq" opt; do
+while getopts ":v:e:p:w:d:s:f:lhrq" opt; do
     case ${opt} in
         v )
             version=$OPTARG
@@ -74,6 +78,15 @@ while getopts ":v:e:p:w:d:s:lhrq" opt; do
             ;;
         s )
             provider=$OPTARG
+	    ;;
+        f )
+            # Expand tilde to home directory
+            expanded_path="${OPTARG/#\~/$HOME}"
+            if [ ! -f "$expanded_path" ]; then
+                echo "Warning: Environment file '$OPTARG' does not exist, skipping."
+            else
+                env_files+=("$expanded_path")
+            fi
             ;;
         l )
             list_versions
@@ -98,6 +111,12 @@ done
 
 # Shift away the processed options to access remaining arguments
 shift $((OPTIND-1))
+
+# Build docker env-file flags
+ENV_FILE_FLAGS=""
+for env_file in "${env_files[@]}"; do
+    ENV_FILE_FLAGS="$ENV_FILE_FLAGS --env-file $env_file"
+done
 
 if [ -z "$version" ]; then
     echo "Error: Version is required. Use the '-v' flag to specify a version. Use the '-l' flag to list available versions or the '-h' flag for examples."
@@ -156,14 +175,7 @@ if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
-TOKEN_EXP='^GITHUB_\(PAT\|TOKEN\)='
-GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
-GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
-if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
-    echo $GPAT >> $DOCKER_HOME/.Renviron
-fi
-
-HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
+HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron 2>/dev/null)
 DLIBUSER=$(grep "R_LIBS_USER" $DOCKER_HOME/.Renviron 2>/dev/null)
 if [ -z "${HLIBUSER// }" ] && [ -z "${DLIBUSER// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
@@ -192,6 +204,7 @@ if [ -n "$resetchown" ]; then
         -e USERID=$USERID \
         -e GROUPID=$GROUPID \
         -u root \
+        $ENV_FILE_FLAGS \
         $biocdocker \
         bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/R/host-site-library'
         exit
@@ -214,6 +227,7 @@ docker run --rm \
       -v $DOCKER_HOME:/home/rstudio \
       -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
       -u root \
+      $ENV_FILE_FLAGS \
       $biocdocker \
       bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/R/host-site-library'
 
@@ -229,6 +243,7 @@ if [ "$envtype" == "rstudio" ]; then
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$UID \
         -p $port:8787 \
+        $ENV_FILE_FLAGS \
         $biocdocker \
         bash -c '/init'
 elif [ "$envtype" == "bash" ]; then
@@ -240,6 +255,7 @@ elif [ "$envtype" == "bash" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker bash "$@"
     else
         docker run $DOCKER_IT_FLAGS --user rstudio \
@@ -247,6 +263,7 @@ elif [ "$envtype" == "bash" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker bash "$@"
     fi
 elif [ "$envtype" == "R" ]; then
@@ -258,6 +275,7 @@ elif [ "$envtype" == "R" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker R "$@"
     else
         docker run $DOCKER_IT_FLAGS --user rstudio \
@@ -265,6 +283,7 @@ elif [ "$envtype" == "R" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker R "$@"
     fi
 elif [ "$envtype" == "Rscript" ]; then
@@ -276,6 +295,7 @@ elif [ "$envtype" == "Rscript" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker Rscript "$@"
     else
         docker run $DOCKER_IT_FLAGS --user rstudio \
@@ -283,6 +303,7 @@ elif [ "$envtype" == "Rscript" ]; then
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
+            $ENV_FILE_FLAGS \
             $biocdocker Rscript "$@"
     fi
 fi
