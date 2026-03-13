@@ -131,7 +131,7 @@ if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
-TOKEN_EXP='GITHUB_[PT].*'
+TOKEN_EXP='^GITHUB_\(PAT\|TOKEN\)='
 GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
 GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
