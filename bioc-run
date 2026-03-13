@@ -116,8 +116,9 @@ fi
 
 # Warn if extra arguments provided with rstudio mode
 if [ "$envtype" == "rstudio" ] && [ $# -gt 0 ]; then
-    echo "Warning: Extra arguments provided with rstudio mode will be ignored."
-    echo "Arguments: $@"
+    if [ "$quiet" != true ]; then
+        echo "Warning: $#: extra arguments provided with rstudio mode will be ignored."
+    fi
 fi
 
 biocdocker=bioconductor/bioconductor_docker:"$version"
@@ -131,7 +132,7 @@ if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
-TOKEN_EXP='GITHUB_[P|T].*'
+TOKEN_EXP='^GITHUB_\(PAT\|TOKEN\)='
 GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
 GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
@@ -139,7 +140,8 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
 fi
 
 HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
-if [ -z "${HLIBENV// }" ]; then
+DLIBUSER=$(grep "R_LIBS_USER" $DOCKER_HOME/.Renviron 2>/dev/null)
+if [ -z "${HLIBUSER// }" ] && [ -z "${DLIBUSER// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
 fi
 
@@ -162,12 +164,12 @@ if [ -n "$resetchown" ]; then
     echo "=================================================="
     docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
-        -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$USERID \
         -e GROUPID=$GROUPID \
         -u root \
         $biocdocker \
-        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/r/host-site-library'
+        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/R/host-site-library'
         exit
 fi
 
@@ -186,10 +188,10 @@ fi
 docker run --rm \
       -e USERID=$UID \
       -v $DOCKER_HOME:/home/rstudio \
-      -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+      -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
       -u root \
       $biocdocker \
-      bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/r/host-site-library'
+      bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/R/host-site-library'
 
 if [ "$envtype" == "rstudio" ]; then
     if [ "$quiet" = false ]; then
