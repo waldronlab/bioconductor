@@ -120,6 +120,13 @@ if [ "$envtype" == "rstudio" ] && [ $# -gt 0 ]; then
     echo "Arguments: $@"
 fi
 
+# Detect if running in interactive terminal
+# Use -it for interactive terminals, -i for non-interactive (CI/CD, scripts, Claude Code)
+DOCKER_IT_FLAGS="-i"
+if [ -t 0 ]; then
+    DOCKER_IT_FLAGS="-it"
+fi
+
 biocdocker=bioconductor/bioconductor_docker:"$version"
 docker pull $biocdocker
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
@@ -209,14 +216,14 @@ elif [ "$envtype" == "bash" ]; then
     # On Linux, run as current user to avoid permission issues with mounted workspace
     # On macOS/Windows, run as rstudio user (Docker Desktop handles user mapping)
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        docker run -ti --user $UID:$(id -g) \
+        docker run $DOCKER_IT_FLAGS --user $UID:$(id -g) \
             -v $DOCKER_HOME:/home/rstudio \
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
             $biocdocker bash "$@"
     else
-        docker run -ti --user rstudio \
+        docker run $DOCKER_IT_FLAGS --user rstudio \
             -v $DOCKER_HOME:/home/rstudio \
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
@@ -227,14 +234,14 @@ elif [ "$envtype" == "R" ]; then
     # On Linux, run as current user to avoid permission issues with mounted workspace
     # On macOS/Windows, run as rstudio user (Docker Desktop handles user mapping)
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        docker run -ti --user $UID:$(id -g) \
+        docker run $DOCKER_IT_FLAGS --user $UID:$(id -g) \
             -v $DOCKER_HOME:/home/rstudio \
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
             -w /workspace \
             $biocdocker R "$@"
     else
-        docker run -ti --user rstudio \
+        docker run $DOCKER_IT_FLAGS --user rstudio \
             -v $DOCKER_HOME:/home/rstudio \
             -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
             -v "$(pwd)":/workspace \
