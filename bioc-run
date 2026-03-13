@@ -18,8 +18,8 @@ show_help() {
     echo "  - For 'bash' mode: passed as arguments to bash (e.g., '-c \"command\"')"
     echo "  - For 'rstudio' mode: extra arguments are ignored with a warning"
     echo ""
-    echo "For 'R' and 'bash' modes, the current working directory is mounted at /workspace"
-    echo "inside the container, allowing you to access local files directly."
+    echo "For all modes, the current working directory is mounted at /workspace inside"
+    echo "the container, allowing you to access local files directly."
     echo ""
     echo "IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict"
     echo "with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -r, -h, -l)."
@@ -178,6 +178,7 @@ if [ "$quiet" = false ]; then
     echo "=================================================="
     echo "Installed packages will go in host directory: $DOCKER_RPKGS"
     echo "RStudio home directory will be mounted on host directory: $DOCKER_HOME"
+    echo "Current working directory will be mounted at /workspace in the container."
     echo "NOTE. These directories need to be writable by group with GID 1000"
     echo "corresponding to rstudio user in the containers."
     echo "This will be forced in this script."
@@ -203,6 +204,7 @@ if [ "$envtype" == "rstudio" ]; then
     docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
         -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+        -v "$(pwd)":/workspace \
         -e USERID=$UID \
         -p $port:8787 \
         $biocdocker \
