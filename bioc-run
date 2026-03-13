@@ -139,7 +139,8 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
 fi
 
 HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
-if [ -z "${HLIBUSER// }" ]; then
+DLIBUSER=$(grep "R_LIBS_USER" $DOCKER_HOME/.Renviron 2>/dev/null)
+if [ -z "${HLIBUSER// }" ] && [ -z "${DLIBUSER// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
 fi
 
