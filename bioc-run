@@ -116,8 +116,9 @@ fi
 
 # Warn if extra arguments provided with rstudio mode
 if [ "$envtype" == "rstudio" ] && [ $# -gt 0 ]; then
-    echo "Warning: Extra arguments provided with rstudio mode will be ignored."
-    echo "Arguments: $@"
+    if [ "$quiet" != true ]; then
+        echo "Warning: $#: extra arguments provided with rstudio mode will be ignored."
+    fi
 fi
 
 biocdocker=bioconductor/bioconductor_docker:"$version"
