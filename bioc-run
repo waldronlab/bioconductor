@@ -2,7 +2,7 @@
 show_help() {
     echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-q] [-- args...]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
-    echo "  -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'."
+    echo "  -e envtype    Specify the environment type ('rstudio', 'bash', 'R', or 'Rscript'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
     echo "  -w password   Specify the RStudio password. Default is 'bioc'."
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
@@ -15,10 +15,11 @@ show_help() {
     echo ""
     echo "Additional arguments after the options will be passed to the environment:"
     echo "  - For 'R' mode: passed as arguments to R (e.g., 'CMD build .' or '--version')"
+    echo "  - For 'Rscript' mode: passed as arguments to Rscript (e.g., 'myscript.R' or '-e \"code\"')"
     echo "  - For 'bash' mode: passed as arguments to bash (e.g., '-c \"command\"')"
     echo "  - For 'rstudio' mode: extra arguments are ignored with a warning"
     echo ""
-    echo "For 'R' and 'bash' modes, the current working directory is mounted at /workspace"
+    echo "For 'R', 'Rscript', and 'bash' modes, the current working directory is mounted at /workspace"
     echo "inside the container, allowing you to access local files directly."
     echo ""
     echo "IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict"
@@ -29,6 +30,8 @@ show_help() {
     echo "  bioc-run -v devel -e R CMD build myPackage/"
     echo "  bioc-run -v devel -e R --version"
     echo "  bioc-run -v devel -e R -- -e \"print('hello')\"         # Use -- to pass -e to R"
+    echo "  bioc-run -v devel -e Rscript myscript.R"
+    echo "  bioc-run -v devel -e Rscript -- -e \"print('hello')\""
     echo "  bioc-run -v devel -e bash -c 'R CMD build .'"
     echo "  bioc-run -v devel -e bash -- -c 'echo test'           # Use -- to pass -c to bash"
     echo ""
@@ -109,8 +112,8 @@ elif [ "$envtype" == "shell" ]; then
     envtype="bash"
 fi
 
-if [[ "$envtype" != "rstudio" && "$envtype" != "bash" && "$envtype" != "R" ]]; then
-    echo "Enter either 'rstudio', 'bash', or 'R' environment type"
+if [[ "$envtype" != "rstudio" && "$envtype" != "bash" && "$envtype" != "R" && "$envtype" != "Rscript" ]]; then
+    echo "Enter either 'rstudio', 'bash', 'R', or 'Rscript' environment type"
     exit 2
 fi
 
@@ -138,7 +141,7 @@ if [ ! -f "$DOCKER_HOME/.Renviron" ]; then
     echo "R_LIBS=$R_LIBS" > $DOCKER_HOME/.Renviron
 fi
 
-TOKEN_EXP='GITHUB_[P|T].*'
+TOKEN_EXP='GITHUB_[PT].*'
 GPAT=$(grep "$TOKEN_EXP" ~/.Renviron)
 GRENV=$(grep "$TOKEN_EXP" $DOCKER_HOME/.Renviron)
 if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
@@ -146,7 +149,7 @@ if [ ! -z "${GPAT// }" ] && [ -z "${GRENV// }" ]; then
 fi
 
 HLIBUSER=$(grep "R_LIBS_USER" ~/.Renviron)
-if [ -z "${HLIBENV// }" ]; then
+if [ -z "${HLIBUSER// }" ]; then
     echo "R_LIBS_USER=/usr/local/lib/R/host-site-library" >> $DOCKER_HOME/.Renviron
 fi
 
@@ -169,12 +172,12 @@ if [ -n "$resetchown" ]; then
     echo "=================================================="
     docker run -e PASSWORD=$password \
         -v $DOCKER_HOME:/home/rstudio \
-        -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+        -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
         -e USERID=$USERID \
         -e GROUPID=$GROUPID \
         -u root \
         $biocdocker \
-        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/r/host-site-library'
+        bash -c 'chown -R $USERID:$GROUPID /home/rstudio /usr/local/lib/R/host-site-library'
         exit
 fi
 
@@ -193,10 +196,10 @@ fi
 docker run --rm \
       -e USERID=$UID \
       -v $DOCKER_HOME:/home/rstudio \
-      -v $DOCKER_RPKGS:/usr/local/lib/r/host-site-library \
+      -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
       -u root \
       $biocdocker \
-      bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/r/host-site-library'
+      bash -c 'chown -R $USERID:1000 /home/rstudio /usr/local/lib/R/host-site-library'
 
 if [ "$envtype" == "rstudio" ]; then
     if [ "$quiet" = false ]; then
@@ -247,5 +250,23 @@ elif [ "$envtype" == "R" ]; then
             -v "$(pwd)":/workspace \
             -w /workspace \
             $biocdocker R "$@"
+    fi
+elif [ "$envtype" == "Rscript" ]; then
+    # On Linux, run as current user to avoid permission issues with mounted workspace
+    # On macOS/Windows, run as rstudio user (Docker Desktop handles user mapping)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        docker run $DOCKER_IT_FLAGS --user $UID:$(id -g) \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker Rscript "$@"
+    else
+        docker run $DOCKER_IT_FLAGS --user rstudio \
+            -v $DOCKER_HOME:/home/rstudio \
+            -v $DOCKER_RPKGS:/usr/local/lib/R/host-site-library \
+            -v "$(pwd)":/workspace \
+            -w /workspace \
+            $biocdocker Rscript "$@"
     fi
 fi
