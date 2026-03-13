@@ -16,8 +16,8 @@ This script makes it easy to:
 4. Specify the port and password for `RStudio`
 5. List all available Bioconductor versions
 6. Pass additional arguments to `R` or `bash` (e.g., `R CMD build`)
-7. Automatically mount the current working directory to `/workspace` in `R` and
-  `bash` modes.
+7. Automatically mount the current working directory to `/workspace` in all
+  modes (`rstudio`, `R`, and `bash`), allowing direct access to local files.
 
 ## Pre-requisites
 
@@ -64,8 +64,8 @@ Additional arguments after the options will be passed to the environment:
   - For 'bash' mode: passed as arguments to bash (e.g., '-c "command"')
   - For 'rstudio' mode: extra arguments are ignored with a warning
 
-For 'R' and 'bash' modes, the current working directory is mounted at /workspace
-inside the container, allowing you to access local files directly.
+For all modes, the current working directory is mounted at /workspace inside
+the container, allowing you to access local files directly.
 
 IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict
 with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -r, -h, -l).
