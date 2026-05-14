@@ -46,12 +46,13 @@ From the command-line, type `bioc-run -h` to make sure it's working:
 
 ```bash
 % ./bioc-run -h
-Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-q] [-- args...]
+Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-s provider] [-l] [-h] [-r] [-q] [-- args...]
   -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y').
   -e envtype    Specify the environment type ('rstudio', 'bash', or 'R'). Default is 'rstudio'.
   -p port       Specify the port number. Default is 8787.
   -w password   Specify the RStudio password. Default is 'bioc'.
   -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'.
+  -s provider   Specify the container registry provider ('docker' or 'ghcr.io'). Default is 'docker'.
   -l            List all available Bioconductor Docker versions.
   -h            Show this help message.
   -q            Quiet mode. Suppress informational messages.
@@ -68,7 +69,7 @@ For 'R' and 'bash' modes, the current working directory is mounted at /workspace
 inside the container, allowing you to access local files directly.
 
 IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict
-with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -r, -h, -l).
+with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -s, -r, -h, -l).
 
 Examples:
   bioc-run -v devel -e R CMD build .
