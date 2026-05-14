@@ -137,7 +137,7 @@ if [ -t 0 ]; then
 fi
 
 if [[ "$provider" != "docker" && "$provider" != "ghcr.io" ]]; then
-    echo "Enter either 'docker' or 'ghcr.io' for the provider"
+    echo "Invalid provider '$provider'. Must be either 'docker' or 'ghcr.io'."
     exit 1
 fi
 
