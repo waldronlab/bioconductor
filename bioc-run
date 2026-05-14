@@ -1,11 +1,12 @@
 #!/bin/bash
 show_help() {
-    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-l] [-h] [-r] [-q] [-- args...]"
+    echo "Usage: bioc-run [-v version] [-e envtype] [-p port] [-w password] [-d dockerhome] [-s provider] [-l] [-h] [-r] [-q] [-- args...]"
     echo "  -v version    Specify the Bioconductor version (e.g., 'devel', 'RELEASE_X_Y', 'X.Y')."
     echo "  -e envtype    Specify the environment type ('rstudio', 'bash', 'R', or 'Rscript'). Default is 'rstudio'."
     echo "  -p port       Specify the port number. Default is 8787."
     echo "  -w password   Specify the RStudio password. Default is 'bioc'."
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
+    echo "  -s provider   Specify the container registry provider ('docker' or 'ghcr.io'). Default is 'docker'."
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
     echo "  -q            Quiet mode. Suppress informational messages."
@@ -23,7 +24,7 @@ show_help() {
     echo "inside the container, allowing you to access local files directly."
     echo ""
     echo "IMPORTANT: Use '--' to stop option parsing if you need to pass arguments that conflict"
-    echo "with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -r, -h, -l)."
+    echo "with bioc-run's own options (e.g., -e, -v, -p, -w, -d, -s, -r, -h, -l)."
     echo ""
     echo "Examples:"
     echo "  bioc-run -v devel -e R CMD build ."
@@ -52,8 +53,9 @@ port=8787
 password="bioc"
 DOCKER_HOME="$HOME/dockerhome"
 quiet=false
+provider="docker"
 
-while getopts ":v:e:p:w:d:lhrq" opt; do
+while getopts ":v:e:p:w:d:s:lhrq" opt; do
     case ${opt} in
         v )
             version=$OPTARG
@@ -69,6 +71,9 @@ while getopts ":v:e:p:w:d:lhrq" opt; do
             ;;
         d )
             DOCKER_HOME=$OPTARG
+            ;;
+        s )
+            provider=$OPTARG
             ;;
         l )
             list_versions
@@ -131,7 +136,16 @@ if [ -t 0 ]; then
     DOCKER_IT_FLAGS="-it"
 fi
 
-biocdocker=bioconductor/bioconductor_docker:"$version"
+if [[ "$provider" != "docker" && "$provider" != "ghcr.io" ]]; then
+    echo "Enter either 'docker' or 'ghcr.io' for the provider"
+    exit 1
+fi
+
+if [ "$provider" == "ghcr.io" ]; then
+    biocdocker=ghcr.io/bioconductor/bioconductor_docker:"$version"
+else
+    biocdocker=bioconductor/bioconductor_docker:"$version"
+fi
 docker pull $biocdocker
 DOCKER_RPKGS="$HOME/.docker-$version-packages"
 R_LIBS='/usr/local/lib/R/host-site-library:/usr/local/lib/R/site-library:/usr/local/lib/R/library'
