@@ -6,7 +6,7 @@ show_help() {
     echo "  -p port       Specify the port number. Default is 8787."
     echo "  -w password   Specify the RStudio password. Default is 'bioc'."
     echo "  -d dockerhome Specify the Docker home directory. Default is '$HOME/dockerhome'."
-    echo "  -s provider   Specify the container registry provider ('docker' or 'ghcr.io'). Default is 'docker'."
+    echo "  -s provider   Specify the container registry service provider ('docker' or 'ghcr.io'). Default is 'docker'."
     echo "  -l            List all available Bioconductor Docker versions."
     echo "  -h            Show this help message."
     echo "  -q            Quiet mode. Suppress informational messages."
@@ -137,7 +137,7 @@ if [ -t 0 ]; then
 fi
 
 if [[ "$provider" != "docker" && "$provider" != "ghcr.io" ]]; then
-    echo "Invalid provider '$provider'. Must be either 'docker' or 'ghcr.io'."
+    echo "Invalid service provider '$provider'. Must be either 'docker' or 'ghcr.io'."
     exit 1
 fi
 
