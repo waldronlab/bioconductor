@@ -112,10 +112,10 @@ done
 # Shift away the processed options to access remaining arguments
 shift $((OPTIND-1))
 
-# Build docker env-file flags
-ENV_FILE_FLAGS=""
+# Build docker env-file flags as an array so paths with spaces remain intact
+env_file_flags=()
 for env_file in "${env_files[@]}"; do
-    ENV_FILE_FLAGS="$ENV_FILE_FLAGS --env-file $env_file"
+    env_file_flags+=(--env-file "$env_file")
 done
 
 if [ -z "$version" ]; then
