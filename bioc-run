@@ -78,7 +78,7 @@ while getopts ":v:e:p:w:d:s:f:lhrq" opt; do
             ;;
         s )
             provider=$OPTARG
-	    ;;
+            ;;
         f )
             # Expand tilde to home directory
             expanded_path="${OPTARG/#\~/$HOME}"
