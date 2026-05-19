@@ -119,10 +119,17 @@ KEY=value
 ANOTHER_KEY=another_value
 ```
 
+These files are passed to Docker as env files, so they must use Docker-compatible
+`KEY=value` syntax. In particular, a general R `~/.Renviron` file is only suitable
+if it already consists of simple `KEY=value` lines; quoted values, comments,
+`export` statements, or other `.Renviron`-specific syntax may not behave as expected.
+
 **Migration Note**: Previous versions of `bioc-run` automatically copied
 `GITHUB_PAT` and `GITHUB_TOKEN` from `~/.Renviron` to the container. This
 behavior has been removed in favor of explicit control via the `-f` flag. To
-restore this functionality, use: `bioc-run -v devel -f ~/.Renviron`
+restore this functionality, either use a Docker-compatible env file containing
+those variables, or use `~/.Renviron` only if it already matches the required
+`KEY=value` format.
 
 ## Docker Containers for Bioconductor
 
